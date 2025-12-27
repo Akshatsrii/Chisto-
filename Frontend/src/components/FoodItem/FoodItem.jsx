@@ -4,7 +4,8 @@ import { StoreContext } from "../../Context/Storecontext"
 
 const FoodItem = ({ _id, name, price, description, image, rating = 4.5 }) => {
 
-  const { cartItems, addToCart, removeFromCart } = useContext(StoreContext)
+  const { cartItems, addToCart, removeFromCart, url } =
+    useContext(StoreContext)
 
   const itemCount = cartItems[_id] || 0
 
@@ -32,9 +33,14 @@ const FoodItem = ({ _id, name, price, description, image, rating = 4.5 }) => {
   return (
     <div className="food-item">
       <div className="food-item-img-container">
-        <img className="food-item-image" src={image} alt={name} />
 
-        {/* ✅ CART CONNECTED COUNTER */}
+        {/* ✅ FIXED IMAGE */}
+        <img
+          className="food-item-image"
+          src={`${url}/uploads/${image}`}
+          alt={name}
+        />
+
         {itemCount === 0 ? (
           <img
             className="add"
