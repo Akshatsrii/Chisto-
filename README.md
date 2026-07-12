@@ -12,12 +12,23 @@
   [![License](https://img.shields.io/badge/License-MIT-FFA500.svg?style=for-the-badge)](LICENSE)
   
   **A scalable, full-stack food delivery web application with custom branding, real-time tracking, an AI chatbot, and a rider ecosystem**
+
+  ### 🔗 [Live Customer App](https://food-ordering-eight-iota.vercel.app/) &nbsp;|&nbsp; [Live Admin Panel](https://food-ordering-xo97.vercel.app/)
   
 </div>
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
 </p>
+
+---
+
+## 🌐 Live Demo
+
+| Portal | Link |
+|---|---|
+| 🛍️ Customer App (Dashboard) | [food-ordering-eight-iota.vercel.app](https://food-ordering-eight-iota.vercel.app/) |
+| 🛠️ Admin / Partner Panel | [food-ordering-xo97.vercel.app](https://food-ordering-xo97.vercel.app/) |
 
 ---
 
