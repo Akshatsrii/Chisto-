@@ -4,7 +4,7 @@ import { toast } from 'react-toastify'
 import './RiderEarnings.css'
 
 const RiderEarnings = () => {
-  const url = "http://localhost:4000"
+  const url = "https://food-ordering-6lji.onrender.com"
   const token = localStorage.getItem("admin-token")
 
   const [stats, setStats] = useState({
