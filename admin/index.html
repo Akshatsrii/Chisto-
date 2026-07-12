@@ -7,7 +7,21 @@
     <title>Chisto Admin Panel</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Premium Loading Splash Screen -->
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Outfit', sans-serif; background-color: #f7fafc; color: #0c2340;">
+        <img src="/food.png" alt="Delightful Food" style="width: 120px; height: 120px; border-radius: 50%; box-shadow: 0 8px 24px rgba(12,35,64,0.15); margin-bottom: 20px; animation: splashPulse 2s infinite ease-in-out;" />
+        <h2 style="margin: 0; font-weight: 700; font-size: 26px; letter-spacing: 0.5px;">CHISTO</h2>
+        <p style="margin: 6px 0 0 0; font-size: 14px; color: #718096; font-weight: 500;">Admin Dashboard Loading...</p>
+        <style>
+          @keyframes splashPulse {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.06) rotate(3deg); }
+            100% { transform: scale(1) rotate(0deg); }
+          }
+        </style>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
