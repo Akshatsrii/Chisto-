@@ -1,4 +1,5 @@
 const foodModel = require("../models/foodModel")
+const userModel = require("../models/userModel")
 
 // ➕ ADD FOOD
 const addFood = async (req, res) => {
@@ -10,12 +11,22 @@ const addFood = async (req, res) => {
       })
     }
 
+    const user = await userModel.findById(req.userId)
+    if (!user || (user.role !== "restaurant" && user.role !== "admin")) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized to add food items"
+      })
+    }
+
     const food = new foodModel({
       name: req.body.name.trim(),
       description: req.body.description,
       price: req.body.price,
       category: req.body.category,
-      image: req.file.filename
+      image: req.file.filename,
+      restaurantId: user._id,
+      restaurantName: user.restaurantName || user.name
     })
 
     await food.save()
@@ -35,7 +46,11 @@ const addFood = async (req, res) => {
 // 📋 LIST FOOD
 const listFood = async (req, res) => {
   try {
-    const foods = await foodModel.find({})
+    const filter = {}
+    if (req.query.restaurantId) {
+      filter.restaurantId = req.query.restaurantId
+    }
+    const foods = await foodModel.find(filter)
     res.status(200).json({
       success: true,
       data: foods
@@ -53,6 +68,17 @@ const removeFood = async (req, res) => {
   try {
     const { id } = req.params
 
+    // Check if the user is authorized to delete this food
+    const food = await foodModel.findById(id)
+    if (!food) {
+      return res.status(404).json({ success: false, message: "Food not found" })
+    }
+
+    const user = await userModel.findById(req.userId)
+    if (!user || (user.role !== "admin" && String(food.restaurantId) !== String(user._id))) {
+      return res.status(403).json({ success: false, message: "Unauthorized to remove this food item" })
+    }
+
     await foodModel.findByIdAndDelete(id)
 
     res.status(200).json({
@@ -67,4 +93,53 @@ const removeFood = async (req, res) => {
   }
 }
 
-module.exports = { addFood, listFood, removeFood }
+// ⭐ ADD REVIEW
+const addReview = async (req, res) => {
+  try {
+    const { rating, comment } = req.body
+    const { id } = req.params
+
+    if (!rating) {
+      return res.json({ success: false, message: "Rating is required" })
+    }
+
+    const user = await userModel.findById(req.userId)
+    if (!user) {
+      return res.json({ success: false, message: "User not found" })
+    }
+
+    const food = await foodModel.findById(id)
+    if (!food) {
+      return res.json({ success: false, message: "Food item not found" })
+    }
+
+    const review = {
+      userId: req.userId,
+      userName: user.name,
+      rating: Number(rating),
+      comment: comment || "",
+      date: new Date()
+    }
+
+    food.reviews.push(review)
+
+    // Recalculate average rating
+    const total = food.reviews.reduce((acc, r) => acc + r.rating, 0)
+    food.averageRating = Number((total / food.reviews.length).toFixed(1))
+
+    await food.save()
+
+    res.status(200).json({
+      success: true,
+      message: "Review Added Successfully",
+      data: food
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
+}
+
+module.exports = { addFood, listFood, removeFood, addReview }

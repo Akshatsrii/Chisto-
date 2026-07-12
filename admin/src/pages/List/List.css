@@ -17,7 +17,7 @@
   color: #333;
   margin: 0;
   padding-bottom: 0.5rem;
-  border-bottom: 3px solid #ff6b35;
+  border-bottom: 3px solid #0c2340;
   display: inline-block;
 }
 
@@ -47,7 +47,7 @@
 
 /* Table Header */
 .list-table-format.title {
-  background: linear-gradient(135deg, #ff6b35 0%, #ff4757 100%);
+  background: linear-gradient(135deg, #0c2340 0%, #ff4757 100%);
   color: white;
   border-radius: 8px;
   font-weight: 600;
@@ -66,7 +66,7 @@
 .list-table-format:not(.title):hover {
   background: rgba(255, 107, 53, 0.05);
   transform: translateX(5px);
-  border-left: 3px solid #ff6b35;
+  border-left: 3px solid #0c2340;
   padding-left: calc(1.5rem - 3px);
 }
 
@@ -94,7 +94,7 @@
 }
 
 .list-table-format:not(.title) p:nth-child(4) {
-  color: #ff6b35;
+  color: #0c2340;
   font-weight: 600;
   font-size: 16px;
 }
@@ -294,7 +294,7 @@
 }
 
 .list-table::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #ff6b35 0%, #ff4757 100%);
+  background: linear-gradient(135deg, #0c2340 0%, #ff4757 100%);
   border-radius: 10px;
 }
 

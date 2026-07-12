@@ -1,0 +1,393 @@
+/* Dashboard.css */
+
+.dashboard {
+  flex: 1;
+  padding: 30px;
+  background-color: #fafafb;
+  font-family: 'Outfit', sans-serif;
+  animation: fadeInDash 0.4s ease-out;
+}
+
+@keyframes fadeInDash {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dashboard-loading {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #777777;
+  min-height: 50vh;
+}
+
+.dashboard-header {
+  margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 5px 0;
+}
+
+.dashboard-header p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+/* Stats Cards Grid */
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 35px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  border: 1px solid #f0f0f2;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.stat-icon.rev {
+  background-color: rgba(76, 217, 100, 0.1);
+  color: #4cd964;
+}
+
+.stat-icon.orders {
+  background-color: rgba(90, 200, 250, 0.1);
+  color: #5ac8fa;
+}
+
+.stat-icon.active-ord {
+  background-color: rgba(255, 107, 107, 0.1);
+  color: #0c2340;
+}
+
+.stat-icon.items {
+  background-color: rgba(255, 204, 0, 0.1);
+  color: #ffcc00;
+}
+
+.stat-icon.avg {
+  background-color: rgba(88, 86, 214, 0.1);
+  color: #5856d6;
+}
+
+.stat-icon.cancel {
+  background-color: rgba(255, 59, 48, 0.1);
+  color: #ff3b30;
+}
+
+.stat-icon.loyal {
+  background-color: rgba(255, 149, 0, 0.1);
+  color: #ff9500;
+}
+
+/* Top Selling List styles */
+.top-selling-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.top-food-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #edf2f7;
+}
+
+.rank-badge {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0c2340;
+  width: 25px;
+}
+
+.food-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.food-info strong {
+  font-size: 13.5px;
+  color: #2d3748;
+}
+
+.food-info span {
+  font-size: 11px;
+  color: #718096;
+}
+
+.food-progress-bar {
+  width: 80px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.food-progress-bar .fill {
+  height: 100%;
+  background: #0c2340;
+  border-radius: 10px;
+}
+
+/* Category Sales list styles */
+.category-sales-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.category-sale-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cat-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cat-name {
+  color: #4a5568;
+}
+
+.cat-amt {
+  color: #2b6cb0;
+}
+
+.category-bar {
+  width: 100%;
+  height: 8px;
+  background: #edf2f7;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.category-bar .fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0c2340, #4299e1);
+  border-radius: 10px;
+}
+
+.no-data {
+  text-align: center;
+  color: #a0aec0;
+  padding: 30px 0;
+  font-size: 13.5px;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-title {
+  font-size: 13px;
+  color: #777777;
+  font-weight: 500;
+}
+
+.stat-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 5px 0 0 0;
+}
+
+/* Analytics Row */
+.dashboard-analytics-row {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 25px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-analytics-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-chart-container, .dashboard-recent-orders {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  border: 1px solid #f0f0f2;
+}
+
+.dashboard-chart-container h3, .dashboard-recent-orders h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* Simulated Bar Chart */
+.chart-bar-graph {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 250px;
+  padding: 10px 0;
+}
+
+.chart-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  width: 40px;
+}
+
+.chart-bar-col .bar {
+  width: 16px;
+  background-color: #ffd0cc;
+  border-radius: 4px;
+  transition: all 0.6s ease;
+}
+
+.chart-bar-col .bar.highlight {
+  background: linear-gradient(to top, #0c2340, #ff8e53);
+  box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+}
+
+.chart-bar-col:hover .bar {
+  background: #0c2340;
+  transform: scaleY(1.05);
+}
+
+.bar-label {
+  font-size: 11px;
+  color: #777777;
+  margin-top: 8px;
+}
+
+/* Recent Orders List Styling */
+.recent-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.recent-order-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f4f4f6;
+}
+
+.recent-order-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ord-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #0c2340;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ord-details {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ord-items-text {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333333;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 150px;
+}
+
+.ord-amount {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555555;
+}
+
+.ord-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: capitalize;
+}
+
+.ord-status.food-processing {
+  background-color: rgba(90, 200, 250, 0.15);
+  color: #5ac8fa;
+}
+
+.ord-status.out-for-delivery {
+  background-color: rgba(255, 204, 0, 0.15);
+  color: #ffcc00;
+}
+
+.ord-status.delivered {
+  background-color: rgba(76, 217, 100, 0.15);
+  color: #4cd964;
+}
+
+.ord-status.cancelled {
+  background-color: rgba(255, 59, 48, 0.15);
+  color: #ff3b30;
+}
+
+.no-recent-orders {
+  font-size: 13px;
+  color: #777777;
+  text-align: center;
+  padding: 30px 0;
+}

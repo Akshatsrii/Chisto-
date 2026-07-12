@@ -127,7 +127,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 76, 36, 0.05) 0%, transparent 50%);
+  background: linear-gradient(135deg, rgba(12, 35, 64, 0.05) 0%, transparent 50%);
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
@@ -135,7 +135,7 @@
 
 .food-item:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(255, 76, 36, 0.15), 
+  box-shadow: 0 20px 40px rgba(12, 35, 64, 0.15), 
               0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -180,7 +180,7 @@
 }
 
 .food-item:hover .food-item-name-rating p {
-  color: #ff4c24;
+  color: #0c2340;
 }
 
 .food-item-description {
@@ -198,7 +198,7 @@
 .food-item-price {
   font-size: 20px;
   font-weight: 700;
-  background: linear-gradient(135deg, #ff4c24 0%, #ff6b47 100%);
+  background: linear-gradient(135deg, #0c2340 0%, #1d3b68 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -206,4 +206,12 @@
   position: relative;
   letter-spacing: -0.5px;
   margin: 0;
+}
+
+.food-item-restaurant {
+  font-size: 12px;
+  color: #777777;
+  font-style: italic;
+  margin: -5px 0 5px 0;
+  font-weight: 500;
 }

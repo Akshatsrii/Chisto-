@@ -23,7 +23,7 @@ const Verify = () => {
         )
 
         if (response.data.success) {
-          navigate("/order-confirm")
+          navigate(`/order-confirm?orderId=${orderId}`)
         } else {
           navigate("/")   // ❌ Cancel → Dashboard
         }

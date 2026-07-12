@@ -19,7 +19,7 @@
   align-items: center;
   gap: 20px;
   padding: 20px;
-  background: #ff6b35;
+  background: #0c2340;
   border-radius: 15px;
   color: white;
   font-weight: 600;
@@ -136,13 +136,13 @@ hr {
 
 .promo-section input:focus {
   outline: none;
-  border-color: #ff6b35;
+  border-color: #0c2340;
   box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
 .promo-section button {
   padding: 15px 35px;
-  background: #ff6b35;
+  background: #0c2340;
   color: white;
   border: none;
   border-radius: 12px;
@@ -189,7 +189,7 @@ hr {
 
 .cart-summary .final-total {
   font-size: 24px;
-  color: #ff6b35;
+  color: #0c2340;
   font-weight: 700;
   padding-top: 15px;
   border-top: 2px dashed #999;
@@ -229,8 +229,8 @@ hr {
 }
 
 .payment-section label:hover {
-  background: #fff5f0;
-  border-color: #ff6b35;
+  background: #f2f6fa;
+  border-color: #0c2340;
   transform: translateX(5px);
 }
 
@@ -239,14 +239,14 @@ hr {
   height: 22px;
   margin-right: 15px;
   cursor: pointer;
-  accent-color: #ff6b35;
+  accent-color: #0c2340;
 }
 
 /* PLACE ORDER BUTTON */
 .place-order-btn {
   width: 100%;
   padding: 20px;
-  background: #ff6b35;
+  background: #0c2340;
   color: white;
   border: none;
   border-radius: 15px;

@@ -13,7 +13,14 @@ const List = () => {
     try {
       const response = await axios.get(`${url}/api/food/list`)
       if (response.data.success) {
-        setList(response.data.data)
+        const adminRole = localStorage.getItem("admin-role")
+        const currentRestName = localStorage.getItem("admin-restaurantName")
+        
+        let foods = response.data.data
+        if (adminRole !== "admin") {
+          foods = foods.filter(item => item.restaurantName === currentRestName)
+        }
+        setList(foods)
       } else {
         toast.error("Error fetching list")
       }
@@ -26,12 +33,15 @@ const List = () => {
   // 🔹 DELETE FOOD
   const removeFood = async (id) => {
     try {
-      const response = await axios.post(`${url}/api/food/remove`, { id })
+      const token = localStorage.getItem("admin-token")
+      const response = await axios.delete(`${url}/api/food/remove/${id}`, {
+        headers: { token }
+      })
       if (response.data.success) {
         toast.success(response.data.message)
         fetchList()
       } else {
-        toast.error("Error deleting food")
+        toast.error(response.data.message || "Error deleting food")
       }
     } catch (error) {
       console.log(error)

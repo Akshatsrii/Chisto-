@@ -13,7 +13,9 @@ const PlaceOrder = () => {
     food_list,
     getTotalCartAmount,
     token,
-    url
+    url,
+    promoDiscount,
+    appliedPromo
   } = useContext(StoreContext)
 
   // DELIVERY FORM STATE
@@ -41,13 +43,17 @@ const PlaceOrder = () => {
   const orderItems = food_list
     .filter(item => cartItems[item._id] > 0)
     .map(item => ({
+      _id: item._id,
       name: item.name,
       price: item.price,
-      quantity: cartItems[item._id]
+      quantity: cartItems[item._id],
+      restaurantId: item.restaurantId,
+      restaurantName: item.restaurantName || "Chisto Kitchen",
+      image: item.image
     }))
 
   const deliveryFee = getTotalCartAmount() === 0 ? 0 : 40
-  const totalAmount = getTotalCartAmount() + deliveryFee
+  const totalAmount = Math.max(getTotalCartAmount() + deliveryFee - promoDiscount, 0)
 
   // PLACE ORDER
   const placeOrder = async (e) => {
@@ -78,7 +84,7 @@ const PlaceOrder = () => {
         )
 
         if (response.data.success) {
-          navigate("/order-confirm")   // ✅ redirect
+          navigate(`/order-confirm?orderId=${response.data.orderId}`)   // ✅ redirect
         } else {
           alert("Order failed")
         }
@@ -153,6 +159,13 @@ const PlaceOrder = () => {
             <p>₹{deliveryFee}</p>
           </div>
 
+          {promoDiscount > 0 && (
+            <div className="cart-total-details promo-applied">
+              <p>Promo Discount ({appliedPromo})</p>
+              <p>-₹{promoDiscount}</p>
+            </div>
+          )}
+
           <hr />
 
           <div className="cart-total-details total">
@@ -162,22 +175,23 @@ const PlaceOrder = () => {
 
           {/* PAYMENT METHOD */}
           <div className="payment-method">
-            <label>
+            <h3>Payment Method</h3>
+            <label className={paymentMethod === "COD" ? "active" : ""}>
               <input
                 type="radio"
                 checked={paymentMethod === "COD"}
                 onChange={() => setPaymentMethod("COD")}
               />
-              Cash on Delivery
+              Cash on Delivery (COD)
             </label>
 
-            <label>
+            <label className={paymentMethod === "ONLINE" ? "active" : ""}>
               <input
                 type="radio"
                 checked={paymentMethod === "ONLINE"}
                 onChange={() => setPaymentMethod("ONLINE")}
               />
-              Online Payment
+              Online Payment (Stripe)
             </label>
           </div>
 

@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.env
+restaurant_credentials.txt
+*.log
+uploads/
+.DS_Store

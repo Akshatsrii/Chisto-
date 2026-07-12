@@ -6,12 +6,31 @@ import { StoreContext } from '../../Context/Storecontext'
 
 const Navbar = ({ setShowLogin }) => {
 
-  const { token, setToken } = useContext(StoreContext)
+  const { 
+    token, 
+    setToken, 
+    cartItems, 
+    searchQuery, 
+    setSearchQuery, 
+    showSearch, 
+    setShowSearch 
+  } = useContext(StoreContext)
 
   const [menu, setMenu] = useState("home")
-  const [cartCount, setCartCount] = useState(0)
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
+
+  const getCartCount = () => {
+    let count = 0
+    if (cartItems) {
+      for (const item in cartItems) {
+        if (cartItems[item] > 0) {
+          count += cartItems[item]
+        }
+      }
+    }
+    return count
+  }
   const navigate = useNavigate()
 
   const scrollToSection = (sectionId) => {
@@ -30,7 +49,11 @@ const Navbar = ({ setShowLogin }) => {
 
   const handleMenuClick = (menuName, sectionId) => {
     setMenu(menuName)
-    scrollToSection(sectionId)
+    if (window.location.pathname === "/") {
+      scrollToSection(sectionId)
+    } else {
+      navigate("/", { state: { scrollToSection: sectionId } })
+    }
   }
 
   // Toggle dropdown
@@ -47,7 +70,7 @@ const Navbar = ({ setShowLogin }) => {
     } else {
       // If logged in, navigate to orders page
       setShowDropdown(false)
-      navigate('/orders')
+      navigate('/myorders')
     }
   }
 
@@ -105,14 +128,28 @@ const Navbar = ({ setShowLogin }) => {
 
       {/* RIGHT */}
       <div className='navbar-right'>
-        <img src={assets.search_icon} alt='search' />
+        {showSearch ? (
+          <div className="navbar-search-bar-inline">
+            <input 
+              type="text" 
+              placeholder="Search dishes..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-inline-input"
+              autoFocus
+            />
+            <span className="close-search-btn" onClick={() => { setShowSearch(false); setSearchQuery(""); }}>×</span>
+          </div>
+        ) : (
+          <img src={assets.search_icon} alt='search' onClick={() => setShowSearch(true)} style={{ cursor: "pointer" }} />
+        )}
 
         {/* CART */}
         <div className='navbar-search-icon'>
           <Link to="/cart">
             <img src={assets.basket_icon} alt='cart' />
           </Link>
-          {cartCount !== 0 && <div className='dot'></div>}
+          {getCartCount() > 0 && <div className='dot'>{getCartCount()}</div>}
         </div>
 
         {/* PROFILE DROPDOWN */}

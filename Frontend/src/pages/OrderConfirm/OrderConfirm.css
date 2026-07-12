@@ -1,42 +1,316 @@
 .order-confirm {
-  min-height: 80vh;
+  min-height: 90vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: #f7f9fc;
+  padding: 45px 20px;
+  font-family: 'Outfit', sans-serif;
 }
 
 .order-confirm-box {
-  background: white;
+  background: #ffffff;
   padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  border-radius: 24px;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.05);
   text-align: center;
+  max-width: 580px;
+  width: 100%;
 }
 
-.order-confirm-box h1 {
-  color: #2e7d32;
-  margin-bottom: 10px;
+.order-success-sub {
+  color: #666666;
+  font-size: 15px;
+  margin-top: 5px;
+  margin-bottom: 30px;
 }
 
-.order-confirm-box p {
-  color: #555;
-  margin-bottom: 25px;
+/* ANIMATED CHECKMARK */
+.checkmark-circle {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  margin-bottom: 20px;
 }
 
-.order-confirm-box button {
-  padding: 10px 20px;
-  border: none;
-  background-color: #1765a4;
+.checkmark-circle .background {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #4caf50;
+  position: absolute;
+}
+
+.checkmark-circle .checkmark {
+  display: none;
+}
+
+.checkmark-circle .checkmark.draw:after {
+  animation-duration: 800ms;
+  animation-timing-function: ease;
+  animation-name: checkmark;
+  transform: scaleX(-1) rotate(135deg);
+}
+
+.checkmark-circle .checkmark:after {
+  opacity: 1;
+  height: 40px;
+  width: 20px;
+  transform-origin: left top;
+  border-right: 5px solid white;
+  border-top: 5px solid white;
+  content: "";
+  left: 20px;
+  top: 42px;
+  position: absolute;
+}
+
+@keyframes checkmark {
+  0% {
+    height: 0;
+    width: 0;
+    opacity: 1;
+  }
+  20% {
+    height: 0;
+    width: 20px;
+    opacity: 1;
+  }
+  40% {
+    height: 40px;
+    width: 20px;
+    opacity: 1;
+  }
+  100% {
+    height: 40px;
+    width: 20px;
+    opacity: 1;
+  }
+}
+
+.checkmark-circle .checkmark {
+  display: block;
+}
+
+/* STATUS TRACKER */
+.status-tracker-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0 35px 0;
+  padding: 0 10px;
+}
+
+.status-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+.status-step .step-badge {
+  width: 40px;
+  height: 40px;
+  background-color: #e0e0e0;
+  color: #777;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+
+.status-step.active .step-badge {
+  background-color: #4caf50;
   color: white;
-  border-radius: 8px;
+}
+
+.status-step.active.pulsing .step-badge {
+  background-color: #0c2340;
+  box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4);
+  animation: pulse-orange 1.5s infinite;
+}
+
+.status-step p {
+  font-size: 13px;
+  font-weight: 600;
+  color: #999;
+  margin: 0;
+}
+
+.status-step.active p {
+  color: #333;
+}
+
+.status-step.active.pulsing p {
+  color: #0c2340;
+}
+
+.status-line {
+  flex: 1;
+  height: 4px;
+  background-color: #e0e0e0;
+  margin: 0 -15px 20px -15px;
+  z-index: 1;
+}
+
+.status-line.active {
+  background-color: #4caf50;
+}
+
+@keyframes pulse-orange {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(255, 107, 53, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0);
+  }
+}
+
+/* MAP CARD STYLE */
+.live-delivery-map-card {
+  border: 1px solid #f0f0f2;
+  border-radius: 16px;
+  padding: 15px;
+  background: #fafafc;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.live-delivery-map-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 12px 0;
+}
+
+#order-confirm-map {
+  height: 250px;
+  width: 100%;
+  border-radius: 12px;
+  background: #eaeaea;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+.loading-map {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #777;
+  font-size: 14px;
+}
+
+.driver-eta-text {
+  font-size: 13px;
+  color: #555;
+  margin: 12px 0 0 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ACTIONS */
+.order-confirm-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.order-confirm-actions button {
+  flex: 1;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  margin: 8px;
+  transition: all 0.2s;
+  outline: none;
 }
 
-.order-confirm-box .home-btn {
-  background-color: #777;
+.order-confirm-actions .primary-btn {
+  background: #0c2340;
+  color: white;
+  border: none;
+  box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
 }
 
-.order-confirm-box button:hover {
-  opacity: 0.9;
+.order-confirm-actions .primary-btn:hover {
+  background: #08182d;
+  transform: translateY(-2px);
 }
+
+.order-confirm-actions .secondary-btn {
+  background: white;
+  color: #555;
+  border: 2px solid #e0e0e0;
+}
+
+.order-confirm-actions .secondary-btn:hover {
+  background: #fafafa;
+  border-color: #ccc;
+  transform: translateY(-2px);
+}
+
+/* BANNER MESSAGE */
+.status-message-banner {
+  margin: 15px 0 25px 0;
+  text-align: left;
+}
+
+.banner-msg {
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.banner-msg.warning {
+  background-color: #fff9eb;
+  border: 1px solid #ffeeba;
+  color: #856404;
+}
+
+.banner-msg.success {
+  background-color: #eafaf1;
+  border: 1px solid #d4edda;
+  color: #155724;
+}
+
+.banner-msg.info {
+  background-color: #eef7fc;
+  border: 1px solid #d1ecf1;
+  color: #0c5460;
+}
+
+.banner-msg.danger {
+  background-color: #fdf2f2;
+  border: 1px solid #fde2e2;
+  color: #721c24;
+}
+
+/* STATUS PILL */
+.order-live-status-pill {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 50px;
+  background-color: #0c2340;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+

@@ -20,6 +20,30 @@ const foodSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true
+  },
+  restaurantId: {
+    type: String,
+    default: "admin"
+  },
+  restaurantName: {
+    type: String,
+    default: "Chisto Kitchen"
+  },
+  reviews: [
+    {
+      userId: String,
+      userName: String,
+      rating: Number,
+      comment: String,
+      date: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ],
+  averageRating: {
+    type: Number,
+    default: 4.5
   }
 })
 

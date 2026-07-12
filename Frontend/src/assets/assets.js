@@ -1,6 +1,6 @@
 import basket_icon from './basket_icon.png'
 import logo from './logo.png'
-import header_img from './header_img.png'
+import header_img from './hh.png'
 import search_icon from './search_icon.png'
 import menu_1 from './menu_1.png'
 import menu_2 from './menu_2.png'
@@ -119,7 +119,7 @@ export const menu_list = [
 export const food_list = [
     {
         _id: "1",
-        name: "Greek salad",
+        name: "Green salad",
         image: food_1,
         price: 12,
         description: "Food provides essential nutrients for overall health and well-being",
@@ -299,7 +299,7 @@ export const food_list = [
     },
     {
         _id: "26",
-        name: "Tomato Pasta",
+        name: "Chisto Pasta",
         image: food_26,
         price: 18,
         description: "Food provides essential nutrients for overall health and well-being",

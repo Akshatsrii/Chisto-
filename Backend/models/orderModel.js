@@ -28,6 +28,14 @@ const orderSchema = new mongoose.Schema({
   payment: {
     type: Boolean,
     default: false
+  },
+  riderId: {
+    type: String,
+    default: ""
+  },
+  riderName: {
+    type: String,
+    default: ""
   }
 })
 

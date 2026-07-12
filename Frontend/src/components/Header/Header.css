@@ -2,7 +2,7 @@
   width: 90%;
   height: 34vw;
   margin: 30px auto;
-  border-radius: 20px;
+  border-radius: 120px 20px 20px 120px;
 
   background-repeat: no-repeat;
   background-size: cover;
@@ -12,7 +12,7 @@
   overflow: hidden;
   
   /* Enhanced shadow with color tint */
-  box-shadow: 0 10px 50px rgba(255, 76, 36, 0.1), 
+  box-shadow: 0 10px 50px rgba(226, 88, 34, 0.1), 
               0 5px 20px rgba(0, 0, 0, 0.08);
   
   /* Smooth transitions */
@@ -71,7 +71,7 @@
   gap: 20px;
 
   max-width: 50%;
-  left: 6vw;
+  right: 6vw;
   bottom: 20%;
 
   color: #ffffff;
@@ -190,7 +190,7 @@
 
 .header-contents button:hover {
   /* Vibrant gradient on hover */
-  background: linear-gradient(135deg, #ff4c24 0%, #ff6b47 100%);
+  background: linear-gradient(135deg, #0c2340 0%, #ff6b47 100%);
   color: #ffffff;
   
   /* Enhanced hover effects */
@@ -235,6 +235,8 @@
     max-width: 60%;
     bottom: 18%;
     gap: 18px;
+    right: 6vw;
+    left: auto;
   }
 }
 
@@ -242,7 +244,7 @@
   .header {
     height: 50vw;
     margin: 20px auto;
-    border-radius: 15px;
+    border-radius: 80px 15px 15px 80px;
   }
   
   .header::before {
@@ -256,7 +258,8 @@
   
   .header-contents {
     max-width: 75%;
-    left: 5vw;
+    right: 5vw;
+    left: auto;
     bottom: 15%;
     gap: 16px;
   }
@@ -293,7 +296,8 @@
   
   .header-contents {
     max-width: 85%;
-    left: 4vw;
+    right: 4vw;
+    left: auto;
     bottom: 12%;
     gap: 14px;
   }

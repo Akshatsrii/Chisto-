@@ -1,0 +1,16 @@
+{
+  "short_name": "Chisto",
+  "name": "Chisto - Smart Food Delivery",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0c2340",
+  "theme_color": "#0c2340",
+  "display": "standalone",
+  "orientation": "portrait"
+}

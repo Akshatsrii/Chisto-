@@ -1,6 +1,7 @@
 const express = require("express")
 const multer = require("multer")
-const { addFood, listFood, removeFood } = require("../controllers/foodController")
+const { addFood, listFood, removeFood, addReview } = require("../controllers/foodController")
+const authMiddleware = require("../middleware/auth")
 
 const foodRouter = express.Router()
 
@@ -16,12 +17,15 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 
 // ➕ ADD
-foodRouter.post("/add", upload.single("image"), addFood)
+foodRouter.post("/add", authMiddleware, upload.single("image"), addFood)
 
 // 📋 LIST
 foodRouter.get("/list", listFood)
 
 // ❌ REMOVE
-foodRouter.delete("/remove/:id", removeFood)
+foodRouter.delete("/remove/:id", authMiddleware, removeFood)
+
+// ⭐ REVIEW
+foodRouter.post("/review/:id", authMiddleware, addReview)
 
 module.exports = foodRouter

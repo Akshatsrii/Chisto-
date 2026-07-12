@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 import "./FoodItem.css"
 import { StoreContext } from "../../Context/Storecontext"
 
-const FoodItem = ({ _id, name, price, description, image, rating = 4.5 }) => {
+const FoodItem = ({ _id, name, price, description, image, rating = 4.5, restaurantName = "Chisto Kitchen", onReviewClick }) => {
 
   const { cartItems, addToCart, removeFromCart, url } =
     useContext(StoreContext)
@@ -68,12 +68,12 @@ const FoodItem = ({ _id, name, price, description, image, rating = 4.5 }) => {
       <div className="food-item-info">
         <div className="food-item-name-rating">
           <p>{name}</p>
-          <div className="rating-stars">
+          <div className="rating-stars" onClick={onReviewClick} title="Click to view reviews" style={{ cursor: 'pointer' }}>
             {renderStars(rating)}
             <span className="rating-number">{rating}</span>
           </div>
         </div>
-
+        <p className="food-item-restaurant">by {restaurantName}</p>
         <p className="food-item-description">{description}</p>
         <p className="food-item-price">₹{price}</p>
       </div>

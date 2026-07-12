@@ -40,9 +40,11 @@ const Add = () => {
     formData.append("image", image)
 
     try {
+      const token = localStorage.getItem("admin-token")
       const response = await axios.post(
         `${url}/api/food/add`,
-        formData
+        formData,
+        { headers: { token } }
       )
 
       if (response.data.success) {

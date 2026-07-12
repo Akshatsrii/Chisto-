@@ -9,31 +9,37 @@ const Cart = () => {
     cartItems,
     food_list,
     removeFromCart,
-    getTotalCartAmount
+    getTotalCartAmount,
+    url,
+    promoDiscount,
+    setPromoDiscount,
+    appliedPromo,
+    setAppliedPromo
   } = useContext(StoreContext)
 
   const navigate = useNavigate()
 
-  const [promoCode, setPromoCode] = useState("")
-  const [discount, setDiscount] = useState(0)
-  const [paymentMethod, setPaymentMethod] = useState("")
+  const [promoInput, setPromoInput] = useState(appliedPromo)
 
   // ✅ APPLY PROMO CODE
   const applyPromoCode = () => {
     const total = getTotalCartAmount()
 
-    if (promoCode === "SAVE10") {
-      setDiscount(0.1 * total)
-    } else if (promoCode === "SAVE20") {
-      setDiscount(0.2 * total)
+    if (promoInput === "SAVE10") {
+      setPromoDiscount(Math.round(0.1 * total))
+      setAppliedPromo("SAVE10")
+    } else if (promoInput === "SAVE20") {
+      setPromoDiscount(Math.round(0.2 * total))
+      setAppliedPromo("SAVE20")
     } else {
-      setDiscount(0)
+      setPromoDiscount(0)
+      setAppliedPromo("")
       alert("Invalid Promo Code")
     }
   }
 
   const subtotal = getTotalCartAmount()
-  const finalAmount = Math.max(subtotal - discount, 0)
+  const finalAmount = Math.max(subtotal - promoDiscount, 0)
 
   return (
     <div className="cart">
@@ -59,7 +65,7 @@ const Cart = () => {
             return (
               <div key={item._id} className="cart-items-item">
                 <img
-                  src={item.image}
+                  src={`${url}/uploads/${item.image}`}
                   alt={item.name}
                   className="cart-item-image"
                 />
@@ -90,8 +96,8 @@ const Cart = () => {
           <input
             type="text"
             placeholder="Enter Promo Code"
-            value={promoCode}
-            onChange={(e) => setPromoCode(e.target.value)}
+            value={promoInput}
+            onChange={(e) => setPromoInput(e.target.value)}
           />
           <button onClick={applyPromoCode}>Apply</button>
         </div>
@@ -102,43 +108,20 @@ const Cart = () => {
             Subtotal: <span>₹{subtotal}</span>
           </p>
           <p>
-            Discount: <span>-₹{discount}</span>
+            Discount: <span>-₹{promoDiscount}</span>
           </p>
           <p className="final-total">
             Total Payable: <span>₹{finalAmount}</span>
           </p>
         </div>
 
-        {/* PAYMENT OPTIONS */}
-        <div className="payment-section">
-          <h3>Select Payment Method</h3>
-
-          <label>
-            <input
-              type="radio"
-              name="payment"
-              onChange={() => setPaymentMethod("Cash on Delivery")}
-            />
-            Cash on Delivery
-          </label>
-
-          <label>
-            <input
-              type="radio"
-              name="payment"
-              onChange={() => setPaymentMethod("Online Payment")}
-            />
-            Online Payment
-          </label>
-        </div>
-
-        {/* PLACE ORDER */}
+        {/* PROCEED TO CHECKOUT */}
         <button
           className="place-order-btn"
-          disabled={!paymentMethod || finalAmount === 0}
+          disabled={finalAmount === 0}
           onClick={() => navigate("/order")}
         >
-          Place Order
+          Proceed to Checkout
         </button>
 
       </div>

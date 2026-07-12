@@ -12,8 +12,14 @@ const StoreContextProvider = ({ children }) => {
   const [token, setToken] = useState(
     localStorage.getItem("token") || ""
   )
+  const [showLogin, setShowLogin] = useState(false)
+  const [selectedRestaurant, setSelectedRestaurant] = useState("All")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showSearch, setShowSearch] = useState(false)
+  const [promoDiscount, setPromoDiscount] = useState(0)
+  const [appliedPromo, setAppliedPromo] = useState("")
 
-  // ✅ FETCH FOOD LIST FROM BACKEND
+  // ================= FETCH FOOD LIST =================
   const fetchFoodList = async () => {
     try {
       const res = await axios.get(url + "/api/food/list")
@@ -25,7 +31,7 @@ const StoreContextProvider = ({ children }) => {
     }
   }
 
-  // ✅ FETCH CART FROM BACKEND
+  // ================= FETCH CART =================
   const fetchCartData = async () => {
     if (!token) return
 
@@ -33,7 +39,6 @@ const StoreContextProvider = ({ children }) => {
       const res = await axios.get(url + "/api/cart/get", {
         headers: { token }
       })
-
       if (res.data.success) {
         setCartItems(res.data.cartData)
       }
@@ -42,51 +47,62 @@ const StoreContextProvider = ({ children }) => {
     }
   }
 
-  // ✅ ADD TO CART (BACKEND FIRST)
+  // ================= ADD TO CART =================
   const addToCart = async (itemId) => {
-    if (!token) return
+    if (!token) {
+      setShowLogin(true)
+      return
+    }
+
+    // 🔥 Optimistic UI
+    setCartItems(prev => ({
+      ...prev,
+      [itemId]: (prev[itemId] || 0) + 1
+    }))
 
     try {
-      const res = await axios.post(
+      await axios.post(
         url + "/api/cart/add",
         { itemId },
         { headers: { token } }
       )
-
-      if (res.data.success) {
-        fetchCartData()
-      }
     } catch (err) {
       console.log("Add cart error", err)
+      fetchCartData() // rollback
     }
   }
 
-  // ✅ REMOVE FROM CART (BACKEND FIRST)
+  // ================= REMOVE FROM CART =================
   const removeFromCart = async (itemId) => {
     if (!token) return
 
+    // 🔥 Optimistic UI
+    setCartItems(prev => {
+      const updated = { ...prev }
+      updated[itemId] === 1
+        ? delete updated[itemId]
+        : updated[itemId]--
+      return updated
+    })
+
     try {
-      const res = await axios.post(
+      await axios.post(
         url + "/api/cart/remove",
         { itemId },
         { headers: { token } }
       )
-
-      if (res.data.success) {
-        fetchCartData()
-      }
     } catch (err) {
       console.log("Remove cart error", err)
+      fetchCartData()
     }
   }
 
-  // ✅ TOTAL CART AMOUNT
+  // ================= TOTAL CART AMOUNT =================
   const getTotalCartAmount = () => {
     let total = 0
-
     for (const itemId in cartItems) {
       const product = food_list.find(
-        (item) => item._id === itemId
+        item => item._id === itemId
       )
       if (product) {
         total += product.price * cartItems[itemId]
@@ -95,7 +111,7 @@ const StoreContextProvider = ({ children }) => {
     return total
   }
 
-  // ✅ INITIAL LOAD
+  // ================= INITIAL LOAD =================
   useEffect(() => {
     fetchFoodList()
 
@@ -108,6 +124,33 @@ const StoreContextProvider = ({ children }) => {
     }
   }, [token])
 
+  const queryChatbot = async (message, chatHistory) => {
+    try {
+      const res = await axios.post(url + "/api/chat/query", { message, chatHistory })
+      return res.data
+    } catch (err) {
+      console.log("Chatbot query error", err)
+      return { success: false, message: "AI Assistant offline." }
+    }
+  }
+
+  const addFoodReview = async (foodId, rating, comment) => {
+    try {
+      const res = await axios.post(
+        url + `/api/food/review/${foodId}`,
+        { rating, comment },
+        { headers: { token } }
+      )
+      if (res.data.success) {
+        fetchFoodList()
+      }
+      return res.data
+    } catch (err) {
+      console.log("Review submission error", err)
+      return { success: false, message: "Could not submit review." }
+    }
+  }
+
   return (
     <StoreContext.Provider
       value={{
@@ -118,7 +161,21 @@ const StoreContextProvider = ({ children }) => {
         getTotalCartAmount,
         token,
         setToken,
-        url
+        url,
+        queryChatbot,
+        addFoodReview,
+        showLogin,
+        setShowLogin,
+        selectedRestaurant,
+        setSelectedRestaurant,
+        searchQuery,
+        setSearchQuery,
+        showSearch,
+        setShowSearch,
+        promoDiscount,
+        setPromoDiscount,
+        appliedPromo,
+        setAppliedPromo
       }}
     >
       {children}

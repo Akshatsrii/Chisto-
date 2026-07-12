@@ -1,0 +1,162 @@
+/* ExploreRestaurants.css */
+
+.explore-restaurants {
+  width: 90%;
+  max-width: 1280px;
+  margin: 60px auto 30px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-family: 'Outfit', sans-serif;
+}
+
+.explore-restaurants h1 {
+  color: #262626;
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 700;
+  margin: 0;
+}
+
+.explore-restaurants-text {
+  max-width: 100%;
+  color: #777777;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 10px 0;
+}
+
+/* Marquee container hides overflow */
+.restaurants-marquee-container {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  padding: 10px 0 20px 0;
+}
+
+/* Horizontal scrolling track with infinite CSS animation */
+.restaurants-list-scroll {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  animation: scrollMarquee 40s linear infinite;
+}
+
+/* Pause scroll animation on hover */
+.restaurants-list-scroll:hover {
+  animation-play-state: paused;
+}
+
+/* Keyframes for seamless looping */
+@keyframes scrollMarquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Hide scrollbar but keep scroll functionality */
+.restaurants-list-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.restaurants-list-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.restaurants-list-scroll::-webkit-scrollbar-thumb {
+  background: #eaeaea;
+  border-radius: 10px;
+}
+
+.restaurants-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: #d4d4d4;
+}
+
+/* Brand Card styling */
+.restaurant-item-card {
+  min-width: 170px;
+  background: #ffffff;
+  border: 1px solid #f0f0f2;
+  border-radius: 16px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  user-select: none;
+}
+
+.restaurant-item-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(12, 35, 64, 0.12);
+  border-color: rgba(12, 35, 64, 0.25);
+}
+
+.restaurant-item-card.active {
+  border-color: #0c2340;
+  box-shadow: 0 10px 25px rgba(12, 35, 64, 0.18);
+  background: linear-gradient(135deg, #ffffff 0%, #f6f9fc 100%);
+}
+
+.restaurant-icon-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #edf2f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+  transition: transform 0.3s;
+}
+
+.restaurant-item-card:hover .restaurant-icon-wrapper {
+  transform: scale(1.08) rotate(5deg);
+}
+
+.restaurant-item-card.active .restaurant-icon-wrapper {
+  background-color: #0c2340;
+}
+
+.restaurant-emoji-icon {
+  font-size: 28px;
+}
+
+.restaurant-item-card.active .restaurant-emoji-icon {
+  filter: brightness(1.2);
+}
+
+.restaurant-meta-details h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+}
+
+.restaurant-item-card.active .restaurant-meta-details h4 {
+  color: #0c2340;
+}
+
+.restaurant-meta-details p {
+  font-size: 11px;
+  color: #888888;
+  margin: 0;
+  font-weight: 500;
+}
+
+.explore-restaurants hr {
+  margin: 10px 0 0 0;
+  height: 2px;
+  background-color: #f2f2f2;
+  border: none;
+}

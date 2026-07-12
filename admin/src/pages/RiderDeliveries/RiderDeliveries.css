@@ -1,0 +1,272 @@
+/* RiderDeliveries.css */
+
+.rider-deliveries {
+  flex: 1;
+  padding: 40px;
+  background-color: #f7fafc;
+  font-family: 'Outfit', sans-serif;
+  color: #2d3748;
+}
+
+.rider-header {
+  margin-bottom: 30px;
+}
+
+.rider-header h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0c2340;
+  margin: 0 0 5px 0;
+}
+
+.rider-header p {
+  color: #718096;
+  margin: 0;
+  font-size: 14.5px;
+}
+
+.rider-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.rider-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #0c2340;
+  border-radius: 50%;
+  animation: riderSpin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes riderSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.rider-content-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 30px;
+}
+
+@media (max-width: 991px) {
+  .rider-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rider-section {
+  background: white;
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 4px 20px rgba(12, 35, 64, 0.04);
+  border: 1px solid #edf2f7;
+}
+
+.rider-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0c2340;
+  margin: 0 0 20px 0;
+  border-bottom: 2px solid #f2f6fa;
+  padding-bottom: 10px;
+}
+
+.empty-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  color: #a0aec0;
+  font-size: 14.5px;
+  background: #fdfdfd;
+  border: 2px dashed #edf2f7;
+  border-radius: 10px;
+}
+
+.rider-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rider-order-card {
+  background: #ffffff;
+  border: 1px solid #e2ecf7;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.rider-order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(12, 35, 64, 0.06);
+}
+
+.rider-order-card.active {
+  border-left: 5px solid #0c2340;
+}
+
+.rider-order-card.unassigned {
+  border-left: 5px solid #4cd964;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #f2f6fa;
+  padding-bottom: 10px;
+}
+
+.order-id {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #4a5568;
+}
+
+.status-pill {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 50px;
+  text-transform: uppercase;
+}
+
+.status-pill.food-processing {
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+}
+
+.status-pill.out-for-delivery {
+  background-color: #fffaf0;
+  color: #dd6b20;
+}
+
+.status-pill.delivered {
+  background-color: #f0fff4;
+  color: #38a169;
+}
+
+.pool-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 50px;
+  background-color: #f0fff4;
+  color: #38a169;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 13.5px;
+  gap: 15px;
+}
+
+.info-row strong {
+  color: #718096;
+  font-weight: 600;
+  min-width: 130px;
+}
+
+.info-row span {
+  color: #2d3748;
+  text-align: right;
+  word-break: break-word;
+}
+
+.item-tag {
+  display: inline-block;
+  background: #f2f6fa;
+  color: #0c2340;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  margin-left: 5px;
+  font-weight: 600;
+}
+
+.amount-row {
+  border-top: 1px dashed #edf2f7;
+  padding-top: 10px;
+  margin-top: 5px;
+}
+
+.amount-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2b6cb0;
+}
+
+.earning-est {
+  font-weight: 700;
+  color: #38a169;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn.accept {
+  background: #0c2340;
+  color: white;
+}
+
+.action-btn.accept:hover {
+  background: #1a3c6b;
+}
+
+.action-btn.pickup {
+  background: #dd6b20;
+  color: white;
+}
+
+.action-btn.pickup:hover {
+  background: #c05621;
+}
+
+.action-btn.deliver {
+  background: #38a169;
+  color: white;
+}
+
+.action-btn.deliver:hover {
+  background: #2f855a;
+}

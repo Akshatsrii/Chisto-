@@ -16,7 +16,7 @@
   height: 1px;
   background: linear-gradient(90deg, 
     transparent 0%, 
-    #ff4c24 50%, 
+    #0c2340 50%, 
     transparent 100%);
 }
 
@@ -86,7 +86,7 @@
 }
 
 .footer-social-icons img:hover {
-  background: #ff4c24;
+  background: #0c2340;
   transform: translateY(-5px) rotate(5deg);
   box-shadow: 0 10px 25px rgba(255, 76, 36, 0.4);
 }
@@ -118,7 +118,7 @@
   left: 0;
   width: 40px;
   height: 3px;
-  background: linear-gradient(90deg, #ff4c24, #ff7a5c);
+  background: linear-gradient(90deg, #0c2340, #ff7a5c);
   border-radius: 2px;
 }
 
@@ -148,7 +148,7 @@
   content: '›';
   position: absolute;
   left: 0;
-  color: #ff4c24;
+  color: #0c2340;
   font-size: 20px;
   font-weight: bold;
   transition: transform 0.3s ease;
@@ -156,7 +156,7 @@
 
 .footer-content-center li:hover,
 .footer-content-right li:hover {
-  color: #ff4c24;
+  color: #0c2340;
   padding-left: 28px;
 }
 

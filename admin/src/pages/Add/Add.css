@@ -45,7 +45,7 @@
 }
 
 .add-img-upload label:hover {
-  border-color: #ff6b35;
+  border-color: #0c2340;
   background: rgba(255, 107, 53, 0.05);
   transform: scale(1.02);
   box-shadow: 0 4px 15px rgba(255, 107, 53, 0.2);
@@ -84,7 +84,7 @@
 }
 
 .add-product-name input:focus {
-  border-color: #ff6b35;
+  border-color: #0c2340;
   box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
@@ -116,7 +116,7 @@
 }
 
 .add-product-description textarea:focus {
-  border-color: #ff6b35;
+  border-color: #0c2340;
   box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
@@ -161,7 +161,7 @@
 
 .add-category select:focus,
 .add-price input:focus {
-  border-color: #ff6b35;
+  border-color: #0c2340;
   box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
@@ -173,7 +173,7 @@
 .add-btn {
   margin-top: 1.5rem;
   padding: 1rem 2.5rem;
-  background: linear-gradient(135deg, #ff6b35 0%, #ff4757 100%);
+  background: linear-gradient(135deg, #0c2340 0%, #ff4757 100%);
   color: white;
   border: none;
   border-radius: 8px;

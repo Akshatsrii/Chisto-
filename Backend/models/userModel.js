@@ -13,6 +13,21 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  role: {
+    type: String,
+    default: "customer",
+    enum: ["customer", "restaurant", "admin", "rider"]
+  },
+  loyaltyPoints: {
+    type: Number,
+    default: 0
+  },
+  restaurantName: {
+    type: String
+  },
+  restaurantAddress: {
+    type: String
   }
 })
 

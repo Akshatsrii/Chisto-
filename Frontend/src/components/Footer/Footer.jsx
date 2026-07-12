@@ -48,7 +48,7 @@ const Footer = () => {
       <hr />
 
       <p className="footer-copyright">
-        Copyright © 2025 FoodApp.com – All Rights Reserved.
+        Copyright © 2026 Chisto.com – All Rights Reserved.
       </p>
     </div>
   );

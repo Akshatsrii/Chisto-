@@ -33,7 +33,7 @@
   top: 0;
   height: 100%;
   width: 5px;
-  background: linear-gradient(180deg, #ff6b35 0%, #ff4757 100%);
+  background: linear-gradient(180deg, #0c2340 0%, #ff4757 100%);
   transform: scaleY(0);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 2px 0 8px rgba(255, 107, 53, 0.4);
@@ -99,7 +99,7 @@
 }
 
 .sidebar-option:hover p {
-  color: #ff6b35;
+  color: #0c2340;
   font-weight: 600;
   transform: translateX(2px);
 }
@@ -242,4 +242,10 @@
 .sidebar {
   width: 250px;
   min-height: 100vh;
+}
+
+.sidebar-logout:hover {
+  background-color: #fff0f0 !important;
+  color: #ff3b30 !important;
+  border-color: #ff3b30 !important;
 }
