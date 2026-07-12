@@ -1,54 +1,96 @@
 # 🍕 Chisto — Premium Smart Food Delivery Ecosystem (MERN Stack)
 
-Chisto is a high-performance, full-stack food delivery ecosystem built using the MERN stack. Designed with custom branding, an interactive AI food chatbot, real-time status updates via Socket.IO, active Leaflet mapping, a dedicated Rider Partner module, and Progressive Web App (PWA) capabilities, Chisto showcases a production-ready system architecture.
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+</p>
+
+<div align="center">
+  
+  [![Made with MERN](https://img.shields.io/badge/Made%20with-MERN-FF6B35?style=for-the-badge&logo=mongodb)](https://github.com)
+  [![Stripe Integration](https://img.shields.io/badge/Payment-Stripe-635BFF?style=for-the-badge&logo=stripe)](https://stripe.com)
+  [![JWT Auth](https://img.shields.io/badge/Auth-JWT-000000?style=for-the-badge&logo=jsonwebtokens)](https://jwt.io)
+  [![License](https://img.shields.io/badge/License-MIT-FFA500.svg?style=for-the-badge)](LICENSE)
+  
+  **A scalable, full-stack food delivery web application with custom branding, real-time tracking, an AI chatbot, and a rider ecosystem**
+  
+</div>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
+</p>
+
+---
+
+## 📌 Overview
+
+**Chisto** is a premium, production-ready MERN stack food delivery platform. Designed with custom branding, an interactive AI food chatbot, real-time status updates via Socket.IO, active Leaflet mapping, a dedicated Rider Partner module, and Progressive Web App (PWA) capabilities, Chisto showcases a production-ready system architecture.
 
 ---
 
 ## 🎨 Premium Branding & Theme
-* **Color System**: Adopts a curated, high-end **Deep Navy Blue** theme (`#0c2340`) across both customer and administrator web portals, removing standard templates in favor of custom-generated assets and modern typography (Google Fonts Outfit & Inter).
+* **Color System**: Adopts a curated, high-end **Deep Navy Blue** theme (`#0c2340`) across both customer and administrator web portals, removing standard templates in favor of custom-generated assets and modern typography (Outfit & Inter).
 * **Infinite Brand Slider**: Home screen features a hardware-accelerated CSS infinite marquee slider displaying restaurant partner brands with smooth transitions and hover-pause interactions.
 
 ---
 
-## 🧩 Architecture & Ecosystem Modules
+## ✨ Key Features
 
-Chisto is structured into **four independent modules**:
+### 👥 **Customer PWA Features**
+- 🔐 User registration and secure JWT login.
+- 🍔 Browse food items with category filters and **Smart Search Real-time Filters**.
+- 🛒 Dynamic cart management (add/remove items) with **Promo Code Carry-Over**.
+- 💳 Secure checkout with Stripe integration and Cash on Delivery support.
+- 📦 **Order Re-run**: One-click repeat order from receipt history.
+- 🗺️ **Live Leaflet Map Tracking**: Instantly tracks active orders in real-time inside modal maps.
+- 💬 **AI recommendation Chatbot**: Ask Gemini for food recommendations (e.g., "spicy veg food under ₹300") and add items directly to your cart with one click!
+- 💰 **Loyalty Point System**: Automatically earn 10 points per ₹100 spent on completed orders.
+- ⭐ **Verified Purchaser Reviews**: Review and rate food items only if you have ordered and received them.
 
-### 👥 1. Customer Portal (Frontend)
-A responsive Progressive Web App built using React.
-* **Smart Search Filter**: Interactive navbar toggle filter matching menu options in real-time.
-* **Loyalty Points & Coupons**: Check out using `WELCOME50` coupon codes with dynamic minimum order filters. Earns **10 Loyalty Points per ₹100 spent**.
-* **Verified Purchaser Reviews**: Restricts rating submissions (1-5 stars + feedback) to verified buyers of that specific item.
-* **Map Tracking Popup**: Renders leaflet map tiles dynamically with invalidation checks inside modal windows.
-* **Order Re-run**: One-click order repeats parsed from receipt data.
+### 🏍️ **Delivery Rider Features**
+- 🔑 Secure Rider login and authentication (Seeded credentials: `rider@chisto.com` / `password123`).
+- 📦 **Open Orders Pool**: Accept or reject unassigned local deliveries.
+- 🏍️ **Milestone Updates**: Set orders to "Picked Up" or "Delivered" to instantly update the customer's tracking map in real-time.
+- 💸 **Earnings Dashboard**: Track completed deliveries and payouts (₹50 commission credited per delivery).
 
-### ⚙️ 2. Core Server & APIs (Backend)
-High-performance REST API and WebSocket host built using Node.js, Express, and Socket.IO.
-* **Real-Time WebSockets**: Dispatches instant status progression events to specific rooms matching order ID.
-* **Commission Engine**: Automatically credits ₹50 commission payouts to assigned delivery rider profiles on successful orders.
-* **JWT Authorization**: Encrypted routes for admins, restaurant managers, riders, and customers.
-
-### 🏍️ 3. Delivery Rider Panel (Rider App)
-Integrated directly within the partner portal.
-* **Open Orders Pool**: Pulls nearby unassigned deliveries. Riders can accept/reject jobs.
-* **Milestone Actions**: Live state transition updates (Picked Up ➔ Delivered) which instantly sync back to the customer's active tracking map via socket events.
-* **Earnings Log**: Tracks total completed deliveries and payouts.
-
-### 📊 4. Administrator Panel (Advanced Analytics)
-* **Advanced KPIs**: Computes Average Order Value (AOV), customer repeat ratios, and order cancellation trends.
-* **Category Sales Distribution**: Percentage layout indicators for menu category performance.
-* **Top Selling Food Item Charts**: Dynamic count-based progress bars listing popular items.
+### 📊 **Admin & Partner Dashboard**
+- 🔑 Secure super-admin and brand partner logins.
+- ➕ Menu management (Add/List/Remove dishes with image uploads).
+- 📈 **Advanced Analytics Dashboard**: Track Total Revenue, Average Order Value (AOV), Cancellation Rates, and Repeat Customer percentages.
+- 📊 **Visual Sales Charts**: Category-wise sales share meters and Top-Selling food item progress indicators.
 
 ---
 
-## 💻 Tech Stack
-* **Frontend**: React.js, Tailwind CSS, Axios, React Router, Leaflet Maps, Socket.IO Client.
-* **Backend**: Node.js, Express.js, MongoDB (Mongoose ODM), Socket.IO, Gemini Pro AI.
-* **PWA**: Service Workers (sw.js offline shell caching), manifest.json, push notification handlers.
+## 🧠 System Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     CLIENT LAYER                        │
+│                (Progressive Web Apps)                   │
+├─────────────────────┬───────────────────────────────────┤
+│   React Frontend    │      React Partner Panel          │
+│   (Customer Side)   │      (Admin, Restaurant, Rider)   │
+└──────────┬──────────┴───────────────┬───────────────────┘
+           │                          │
+           │      REST & Sockets      │
+           │                          │
+           └──────────┬───────────────┘
+                       ↓
+           ┌──────────────────────┐
+           │   Node.js Backend    │
+           │   Express.js Server  │
+           └──────────┬───────────┘
+                       │
+             ┌─────────┴─────────┐
+             ↓                   ↓
+  ┌──────────────────┐  ┌──────────────────┐
+  │ MongoDB Database │  │   Socket.IO      │
+  │ (Data Storage)   │  │ (Real-Time Comm) │
+  └──────────────────┘  └──────────────────┘
+```
 
 ---
 
-## 📂 Folder Structure
+## 📂 Project Structure
 ```bash
 FoodTracking/
 ├── Backend/          # Node REST APIs, Sockets & DB Controllers
@@ -60,23 +102,69 @@ FoodTracking/
 
 ---
 
-## 🔧 Installation & Setup
+## ⚙️ Installation & Setup
 
-1. **Clone the Repository**:
-   ```bash
-   git clone <repo-url>
-   cd FoodTracking
-   ```
+### 📋 Prerequisites
+Before you begin, ensure you have Node.js, MongoDB, and a Stripe Account (for payments).
 
-2. **Database Seeding**:
-   Configure `.env` in `Backend` containing `MONGO_URI` and run user population:
-   ```bash
-   cd Backend
-   npm install
-   node populate_restaurants.js
-   ```
+### 🚀 Quick Start
 
-3. **Run Services locally**:
-   * **Backend**: `npm run dev` (Port 4000)
-   * **Frontend**: `npm run dev` (Port 5173)
-   * **Admin Panel**: `npm run dev` (Port 5174)
+#### 1️⃣ **Backend Setup**
+```bash
+cd Backend
+npm install
+```
+
+Create a `.env` file in the `Backend` directory:
+```env
+PORT=4000
+MONGO_URI=mongodb+srv://...
+JWT_SECRET=your_super_secret_jwt_key_here
+STRIPE_SECRET_KEY=sk_test_...
+CLIENT_URL=http://localhost:5173
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+Run database seeds to set up restaurants, admins, default coupons, and riders:
+```bash
+node populate_restaurants.js
+```
+
+Start the backend:
+```bash
+npm run dev
+```
+
+#### 2️⃣ **Frontend Setup**
+```bash
+cd ../Frontend
+npm install
+```
+
+Create `.env` in the `Frontend` directory:
+```env
+VITE_API_URL=http://localhost:4000/api
+```
+
+Start the client application:
+```bash
+npm run dev
+```
+
+#### 3️⃣ **Admin Panel Setup**
+```bash
+cd ../admin
+npm install
+```
+
+Start the panel:
+```bash
+npm run dev
+```
+
+---
+
+## 🔑 Default Login Credentials
+* **Super Admin**: `admin@chisto.com` / `password123`
+* **Rider Partner**: `rider@chisto.com` / `password123`
+* **Restaurant Partner**: `punjabidhaba@chisto.com` / `password123`
