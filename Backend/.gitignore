@@ -3,5 +3,5 @@ node_modules/
 *.env
 restaurant_credentials.txt
 *.log
-uploads/
+# uploads/
 .DS_Store
