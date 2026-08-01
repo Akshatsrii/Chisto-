@@ -37,6 +37,7 @@ const populate = async () => {
         name: "Super Admin",
         email: "admin@chisto.com",
         password: hashedPassword,
+        phone: "0000000000",
         role: "admin",
         restaurantName: "Chisto Head Office"
       })
@@ -54,6 +55,7 @@ const populate = async () => {
         name: "Chisto Rider Partner",
         email: "rider@chisto.com",
         password: hashedPassword,
+        phone: "0000000000",
         role: "rider"
       })
       console.log("Created Rider: rider@chisto.com")
@@ -70,6 +72,7 @@ const populate = async () => {
           name: r.name + " Partner",
           email: r.email,
           password: hashedPassword,
+          phone: "0000000000",
           role: "restaurant",
           restaurantName: r.name,
           restaurantAddress: "Chisto Food Street, Sector 1"
