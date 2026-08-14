@@ -49,7 +49,7 @@ Guidelines:
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: {
@@ -111,7 +111,7 @@ Do not use markdown blocks around the JSON.`
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -122,8 +122,8 @@ Do not use markdown blocks around the JSON.`
               parts: [
                 { text: systemPrompt },
                 {
-                  inlineData: {
-                    mimeType: mimeType || "image/jpeg",
+                  inline_data: {
+                    mime_type: mimeType || "image/jpeg",
                     data: base64Data
                   }
                 }
@@ -148,7 +148,7 @@ Do not use markdown blocks around the JSON.`
       }
     }
 
-    res.json({ success: false, message: "Failed to analyze image" })
+    res.json({ success: false, message: data.error ? data.error.message : "Failed to analyze image" })
   } catch (error) {
     console.error("AI Vision error:", error.message)
     res.json({ success: false, message: "AI Vision is temporarily unavailable." })
