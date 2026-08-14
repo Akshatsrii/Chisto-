@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useContext } from 'react'
 import { toast } from 'react-toastify'
 import axios from 'axios'
 import './Chatbot.css'
+import { useNavigate } from 'react-router-dom'
 import { StoreContext } from '../../Context/Storecontext'
 import { sendChatMessage } from '../../utils/gemini'
 
@@ -14,6 +15,8 @@ const Chatbot = () => {
   ])
   const [isLoading, setIsLoading] = useState(false)
   const [previousOrdersText, setPreviousOrdersText] = useState('')
+  
+  const navigate = useNavigate()
   
   const messagesEndRef = useRef(null)
 
@@ -55,6 +58,8 @@ const Chatbot = () => {
   const handleAddFromChat = (itemId, itemName) => {
     addToCart(itemId)
     toast.success(`Added ${itemName} to cart! 🛒`)
+    setIsOpen(false) // Close chatbot to show cart
+    navigate('/cart') // Navigate to cart page
   }
 
   // Parse [ADD_TO_CART: id|name] and replace with interactive add buttons
