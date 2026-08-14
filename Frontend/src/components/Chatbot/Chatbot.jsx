@@ -64,9 +64,10 @@ const Chatbot = () => {
     navigate('/cart') // Navigate to cart page
   }
 
-  // Parse [ADD_TO_CART: id|name] and replace with interactive add buttons
+  // Parse [ADD_TO_CART: id|name] or [ADD_TO_CART: id] and replace with interactive add buttons
   const renderMessageContent = (text) => {
-    const regex = /\[ADD_TO_CART:\s*([a-zA-Z0-9_-]+)\|([^\]]+)\]/g
+    // Make the |name part optional
+    const regex = /\[ADD_TO_CART:\s*([a-zA-Z0-9_-]+)(?:\|([^\]]+))?\]/g
     const parts = []
     let lastIndex = 0
     let match
@@ -79,7 +80,13 @@ const Chatbot = () => {
       }
 
       const itemId = match[1]
-      const itemName = match[2]
+      let itemName = match[2]
+      
+      // If AI forgot to append the name, look it up in food_list
+      if (!itemName) {
+        const foundFood = food_list.find(f => f._id === itemId)
+        itemName = foundFood ? foundFood.name : 'Item'
+      }
 
       parts.push(
         <button
