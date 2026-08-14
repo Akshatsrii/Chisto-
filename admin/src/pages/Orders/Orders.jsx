@@ -95,10 +95,24 @@ const Orders = () => {
                 </span>
               </div>
 
-              {/* DATE */}
+              {/* DATE & SCHEDULE */}
               <p className="order-date-text">
-                Date: {new Date(order.date).toLocaleDateString()} at {new Date(order.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                Ordered On: {new Date(order.date).toLocaleDateString()} at {new Date(order.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
+
+              {order.isScheduled && (
+                <div style={{ marginTop: '10px', padding: '10px', background: '#fff9e6', border: '1px solid #ffd54f', borderRadius: '8px' }}>
+                  <p style={{ margin: 0, fontWeight: 'bold', color: '#ff8f00', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '18px' }}>⏱️</span> 
+                    Scheduled For: {new Date(order.scheduledDate).toLocaleDateString()}
+                  </p>
+                  {order.travelDetails && (
+                    <p style={{ margin: '5px 0 0 0', color: '#424242', fontSize: '14px', paddingLeft: '26px' }}>
+                      <strong>{order.travelDetails.type} Journey:</strong> {order.travelDetails.pnrOrFlightNumber}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* STATUS */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px', flexWrap: 'wrap' }}>
@@ -108,6 +122,7 @@ const Orders = () => {
                   onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
                   style={{ marginTop: 0 }}
                 >
+                  <option value="Scheduled (Awaiting Date)">Scheduled (Awaiting Date)</option>
                   <option value="Payment Verification Pending">Payment Verification Pending</option>
                   <option value="Food Processing">Food Processing</option>
                   <option value="Out for Delivery">Out for Delivery</option>

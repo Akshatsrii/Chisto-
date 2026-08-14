@@ -272,3 +272,63 @@
   color: #2e7d32 !important; /* Green discount text */
   font-weight: 600;
 }
+
+/* SCHEDULING SECTION STYLING */
+.scheduling-section {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.scheduling-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 10px 0;
+}
+
+.schedule-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #444;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.schedule-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #0c2340;
+  cursor: pointer;
+  margin: 0;
+}
+
+.schedule-details {
+  background: #f2f6fa;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #e2ecf7;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.schedule-details select,
+.schedule-details input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #d0d7df;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  margin: 0;
+}
+
+.schedule-details select:focus,
+.schedule-details input:focus {
+  border-color: #0c2340;
+}

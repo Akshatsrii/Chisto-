@@ -34,6 +34,14 @@ const PlaceOrder = () => {
   // PAYMENT METHOD STATE
   const [paymentMethod, setPaymentMethod] = useState("COD")
 
+  // SCHEDULING STATE
+  const [isScheduled, setIsScheduled] = useState(false)
+  const [scheduledDate, setScheduledDate] = useState("")
+  const [travelDetails, setTravelDetails] = useState({
+    type: "Train",
+    pnrOrFlightNumber: ""
+  })
+
   // HANDLE FORM INPUT
   const onChangeHandler = (e) => {
     setAddress({ ...address, [e.target.name]: e.target.value })
@@ -78,7 +86,10 @@ const PlaceOrder = () => {
             items: orderItems,
             amount: totalAmount,
             address,
-            paymentMethod: "COD"
+            paymentMethod: "COD",
+            isScheduled,
+            scheduledDate,
+            travelDetails
           },
           { headers: { token } }
         )
@@ -98,7 +109,10 @@ const PlaceOrder = () => {
             items: orderItems,
             amount: totalAmount,
             address,
-            paymentMethod: "ONLINE"
+            paymentMethod: "ONLINE",
+            isScheduled,
+            scheduledDate,
+            travelDetails
           },
           { headers: { token } }
         )
@@ -142,6 +156,45 @@ const PlaceOrder = () => {
         </div>
 
         <input name="phone" placeholder="Phone" onChange={onChangeHandler} required />
+
+        {/* SCHEDULING & TRAVEL OPTIONS */}
+        <div className="scheduling-section">
+          <h3>Booking Options</h3>
+          <label className="schedule-toggle">
+            <input 
+              type="checkbox" 
+              checked={isScheduled} 
+              onChange={(e) => setIsScheduled(e.target.checked)} 
+            />
+            Schedule for a Future Travel Date (Train/Flight)
+          </label>
+          
+          {isScheduled && (
+            <div className="schedule-details">
+              <input 
+                type="date" 
+                required 
+                value={scheduledDate}
+                onChange={(e) => setScheduledDate(e.target.value)}
+                min={new Date().toISOString().split("T")[0]}
+              />
+              <select 
+                value={travelDetails.type} 
+                onChange={(e) => setTravelDetails({...travelDetails, type: e.target.value})}
+              >
+                <option value="Train">Train Journey</option>
+                <option value="Flight">Flight Journey</option>
+              </select>
+              <input 
+                type="text" 
+                placeholder={travelDetails.type === "Train" ? "Enter PNR Number" : "Enter Flight Number"}
+                value={travelDetails.pnrOrFlightNumber}
+                onChange={(e) => setTravelDetails({...travelDetails, pnrOrFlightNumber: e.target.value})}
+                required
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* RIGHT: CART TOTAL */}

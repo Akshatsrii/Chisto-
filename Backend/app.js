@@ -11,6 +11,7 @@ const orderRouter = require("./routes/orderRoute")
 const chatRouter = require("./routes/chatRoute")
 const couponRouter = require("./routes/couponRoute")
 const reviewRouter = require("./routes/reviewRoute")
+const initCronJobs = require("./cronJobs")
 
 
 const app = express()
@@ -67,6 +68,9 @@ io.on("connection", (socket) => {
     console.log(`User disconnected: ${socket.id}`)
   })
 })
+
+// Initialize Cron Jobs
+initCronJobs(io)
 
 // Server Start
 server.listen(port, () => {

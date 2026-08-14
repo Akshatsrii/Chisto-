@@ -12,7 +12,7 @@ const placeOrder = async (req, res) => {
 
   try {
     const userId = req.userId
-    const { items, amount, address, paymentMethod } = req.body
+    const { items, amount, address, paymentMethod, isScheduled, scheduledDate, travelDetails } = req.body
 
     if (!items || !amount || !address) {
       return res.json({ success: false, message: "Missing order details" })
@@ -27,7 +27,11 @@ const placeOrder = async (req, res) => {
         items,
         amount,
         address,
-        payment: false
+        payment: false,
+        isScheduled: isScheduled || false,
+        scheduledDate: isScheduled ? new Date(scheduledDate) : null,
+        travelDetails: isScheduled ? travelDetails : null,
+        status: isScheduled ? "Scheduled (Awaiting Date)" : "Food Processing"
       })
 
       await newOrder.save()
@@ -55,7 +59,10 @@ const placeOrder = async (req, res) => {
         amount,
         address,
         payment: false,
-        status: "Payment Verification Pending"
+        status: "Payment Verification Pending",
+        isScheduled: isScheduled || false,
+        scheduledDate: isScheduled ? new Date(scheduledDate) : null,
+        travelDetails: isScheduled ? travelDetails : null
       })
 
       await newOrder.save()

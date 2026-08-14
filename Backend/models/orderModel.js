@@ -36,6 +36,18 @@ const orderSchema = new mongoose.Schema({
   riderName: {
     type: String,
     default: ""
+  },
+  isScheduled: {
+    type: Boolean,
+    default: false
+  },
+  scheduledDate: {
+    type: Date,
+    default: null
+  },
+  travelDetails: {
+    type: Object, // { travelType: "Train" | "Flight", pnrOrFlightNumber: String }
+    default: null
   }
 })
 
