@@ -1,0 +1,142 @@
+.availability-page {
+  padding: 30px;
+  font-family: 'Outfit', sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.availability-header h2 {
+  font-size: 26px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.availability-header p {
+  color: #666;
+  font-size: 15px;
+  margin-bottom: 25px;
+}
+
+.availability-controls {
+  display: flex;
+  gap: 15px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+  align-items: center;
+}
+
+.availability-controls input[type="date"] {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #d0d7df;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+}
+
+.availability-controls input[type="date"]:focus {
+  border-color: #0c2340;
+}
+
+.add-btn {
+  background: #ff4757;
+  color: white;
+  border: none;
+  padding: 13px 25px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-btn:hover {
+  background: #ff6b81;
+  transform: translateY(-1px);
+}
+
+.availability-list {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
+
+.availability-list h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #f0f4f8;
+  padding-bottom: 10px;
+}
+
+.no-dates {
+  color: #2e7d32;
+  font-weight: 500;
+  text-align: center;
+  padding: 20px;
+  font-size: 16px;
+}
+
+.availability-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.availability-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  background: #fff9f9;
+  border: 1px solid #ffccd5;
+  border-radius: 8px;
+}
+
+.date-text {
+  font-weight: 500;
+  color: #c0392b;
+}
+
+.remove-btn {
+  background: transparent;
+  color: #c0392b;
+  border: 1px solid #c0392b;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+  background: #c0392b;
+  color: white;
+}
+
+.save-btn {
+  display: block;
+  width: 100%;
+  background: #0c2340;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 16px rgba(12, 35, 64, 0.2);
+}
+
+.save-btn:hover {
+  background: #1d3b68;
+  transform: translateY(-2px);
+}

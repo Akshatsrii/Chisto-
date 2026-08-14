@@ -11,6 +11,7 @@ const orderRouter = require("./routes/orderRoute")
 const chatRouter = require("./routes/chatRoute")
 const couponRouter = require("./routes/couponRoute")
 const reviewRouter = require("./routes/reviewRoute")
+const restaurantRouter = require("./routes/restaurantRoute")
 const initCronJobs = require("./cronJobs")
 
 
@@ -33,6 +34,7 @@ app.use("/api/order", orderRouter)
 app.use("/api/chat", chatRouter)
 app.use("/api/coupon", couponRouter)
 app.use("/api/review", reviewRouter)
+app.use("/api/restaurant", restaurantRouter)
 
 
 // Test Route

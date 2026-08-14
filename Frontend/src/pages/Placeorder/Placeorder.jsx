@@ -77,6 +77,26 @@ const PlaceOrder = () => {
       return
     }
 
+    // 🔥 VALIDATE AVAILABILITY BEFORE PLACING SCHEDULED ORDER
+    if (isScheduled && scheduledDate) {
+      const restaurantNames = [...new Set(orderItems.map(item => item.restaurantName))]
+      try {
+        const availabilityRes = await axios.post(`${url}/api/restaurant/availability/multiple`, { restaurantNames })
+        if (availabilityRes.data.success) {
+          const map = availabilityRes.data.data
+          for (const rName of restaurantNames) {
+            const unavDates = map[rName] || []
+            if (unavDates.includes(scheduledDate)) {
+              alert(`Sorry! ${rName} is closed on ${new Date(scheduledDate).toLocaleDateString()}. Please select another date or order now.`)
+              return // Block Checkout
+            }
+          }
+        }
+      } catch (err) {
+        console.log("Error checking availability:", err)
+      }
+    }
+
     try {
       // 🟢 CASH ON DELIVERY
       if (paymentMethod === "COD") {

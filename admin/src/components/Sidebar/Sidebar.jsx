@@ -49,6 +49,11 @@ const Sidebar = () => {
               <img src={assets.order_icon} alt="" />
               <p>Orders</p>
             </NavLink>
+
+            <NavLink to="/availability" className="sidebar-option">
+              <span style={{ fontSize: '20px', marginRight: '5px' }}>📅</span>
+              <p>Availability</p>
+            </NavLink>
           </>
         )}
 

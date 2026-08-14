@@ -11,6 +11,7 @@ import Orders from './pages/Orders/Orders'
 import Auth from './pages/Auth/Auth'
 import RiderDeliveries from './pages/RiderDeliveries/RiderDeliveries'
 import RiderEarnings from './pages/RiderEarnings/RiderEarnings'
+import Availability from './pages/Availability/Availability'
 
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -64,6 +65,7 @@ const App = () => {
           <Route path="/add" element={<Add />} />
           <Route path="/list" element={<List />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/availability" element={<Availability />} />
           <Route path="/rider-deliveries" element={<RiderDeliveries />} />
           <Route path="/rider-earnings" element={<RiderEarnings />} />
           <Route path="*" element={<Navigate to={role === "rider" ? "/rider-deliveries" : "/dashboard"} />} />
