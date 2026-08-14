@@ -10,7 +10,7 @@ const ai = new GoogleGenAI({
 export async function sendChatMessage(history, foodList = [], previousOrdersText = "") {
   try {
     const menuText = foodList
-      .map(f => `- ${f.name} (Category: ${f.category}, ID: ${f._id}): Price: ₹${f.price}, Rating: ${f.averageRating || '4.5'}/5. Description: ${f.description}`)
+      .map(f => `- ${f.name} (Restaurant: ${f.restaurantName}, Category/Taste: ${f.category}, ID: ${f._id}): Price: ₹${f.price}, Rating: ${f.averageRating || '4.5'}/5. Description: ${f.description}`)
       .join("\n");
 
     const SYSTEM_PROMPT = `
@@ -29,13 +29,13 @@ Chisto Live Menu database:
 ${menuText}
 
 YOUR INSTRUCTIONS:
-1. Recommend dishes from our live menu database based on user query (e.g. price limits, vegetarian, spicy, high-protein).
-2. If the user asks for recommendations (e.g., "suggest some high protein food", "veg food under 300", "recommend something like my past orders"), find matching items in the Chisto Live Menu list above.
+1. Suggest RESTAURANTS and specific dishes from our live menu database based on user query (e.g. price limits, vegetarian, spicy, taste preferences, rating, restaurant name).
+2. If the user asks for recommendations (e.g., "suggest a good restaurant with high rating", "veg food under 300", "what's the best tasting pizza"), find matching restaurants and items in the Chisto Live Menu list above. Answer based on restaurant rating, price, and taste/category.
 3. CRITICAL: Whenever you mention or recommend a dish from the Chisto Live Menu, you MUST append a special Add-to-Cart tag in the exact format: [ADD_TO_CART: <item_id>|<item_name>].
-   - Example: "I recommend trying our delicious **Chicken Tikka** [ADD_TO_CART: 60b9f123c5a61234|Chicken Tikka] (₹280)!"
+   - Example: "I recommend trying the delicious **Chicken Tikka** from **Chisto Kitchen** [ADD_TO_CART: 60b9f123c5a61234|Chicken Tikka] (₹280)!"
    - Replace <item_id> with the exact "ID" of that food item from the menu database above (e.g., 60b9...). Do not invent IDs!
    - Replace <item_name> with the exact name of the item.
-4. Keep answers short, friendly, and formatted nicely with markdown bullet points and emojis.
+4. Keep answers short, friendly, and formatted nicely with markdown bullet points and emojis. Ensure the chatbot experience is helpful for finding restaurants based on rating, price, and taste.
 `;
 
     const conversation = [
