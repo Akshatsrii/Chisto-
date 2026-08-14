@@ -20,6 +20,7 @@ const Chatbot = () => {
   const navigate = useNavigate()
   
   const messagesEndRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   const toggleChat = () => setIsOpen(!isOpen)
 
@@ -164,6 +165,50 @@ const Chatbot = () => {
     }
   }
 
+  // --- AI Vision Image Upload ---
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onloadend = async () => {
+      const base64String = reader.result
+      
+      // Add user image to chat
+      setHistory(prev => [...prev, { role: 'user', image: base64String }])
+      setIsLoading(true)
+
+      try {
+        const res = await axios.post(`${url}/api/chat/vision`, {
+          imageBase64: base64String,
+          mimeType: file.type
+        })
+        
+        if (res.data.success) {
+          if (res.data.matchedItemId) {
+            setHistory(prev => [...prev, { 
+              role: 'model', 
+              type: 'vision_result', 
+              text: res.data.reply, 
+              itemId: res.data.matchedItemId 
+            }])
+          } else {
+            setHistory(prev => [...prev, { role: 'model', text: res.data.reply }])
+          }
+        } else {
+          setHistory(prev => [...prev, { role: 'model', text: res.data.message || 'Could not analyze image.' }])
+        }
+      } catch (err) {
+        setHistory(prev => [...prev, { role: 'model', text: 'Failed to process image. Try again later.' }])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    reader.readAsDataURL(file)
+    // reset input
+    e.target.value = null
+  }
+
   return (
     <div className="chisto-chatbot-container">
       {/* Floating Button */}
@@ -190,13 +235,52 @@ const Chatbot = () => {
           </div>
 
           <div className="chatbot-messages">
-            {history.map((msg, index) => (
-              <div key={index} className={`chat-bubble-wrapper ${msg.role}`}>
-                <div className={`chat-bubble ${msg.role}`}>
-                  {renderMessageContent(msg.text)}
-                </div>
-              </div>
-            ))}
+            {history.map((msg, index) => {
+              // Standard message
+              if (msg.text && !msg.type) {
+                return (
+                  <div key={index} className={`chat-bubble-wrapper ${msg.role}`}>
+                    <div className={`chat-bubble ${msg.role}`}>
+                      {renderMessageContent(msg.text)}
+                    </div>
+                  </div>
+                )
+              }
+              // User Image Upload
+              if (msg.image) {
+                return (
+                  <div key={index} className={`chat-bubble-wrapper ${msg.role}`}>
+                    <div className={`chat-bubble ${msg.role} image-bubble`}>
+                      <img src={msg.image} alt="uploaded" className="chat-uploaded-img" />
+                    </div>
+                  </div>
+                )
+              }
+              // Vision Result (Food Card)
+              if (msg.type === 'vision_result') {
+                const matchedFood = food_list.find(f => f._id === msg.itemId)
+                return (
+                  <div key={index} className={`chat-bubble-wrapper ${msg.role}`}>
+                    <div className={`chat-bubble ${msg.role} vision-bubble`}>
+                      <p>{msg.text}</p>
+                      {matchedFood && (
+                        <div className="vision-food-card">
+                          <img src={`${url}/images/${matchedFood.image}`} alt={matchedFood.name} />
+                          <div className="vision-food-info">
+                            <h4>{matchedFood.name}</h4>
+                            <p>${matchedFood.price}</p>
+                            <button onClick={() => handleAddFromChat(matchedFood._id, matchedFood.name)}>
+                              🛒 Add to Cart
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              }
+              return null;
+            })}
             {isLoading && (
               <div className="chat-bubble-wrapper model">
                 <div className="chat-bubble model typing">
@@ -217,6 +301,21 @@ const Chatbot = () => {
           </div>
 
           <form className="chatbot-input-area" onSubmit={handleSend}>
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              ref={fileInputRef}
+              onChange={handleImageUpload}
+            />
+            <button 
+              type="button" 
+              className="camera-btn"
+              onClick={() => fileInputRef.current.click()}
+              title="Upload image"
+            >
+              📷
+            </button>
             {recognition && (
               <button 
                 type="button" 

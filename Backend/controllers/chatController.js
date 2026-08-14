@@ -76,4 +76,83 @@ Guidelines:
   }
 }
 
-module.exports = { handleChat }
+const handleVision = async (req, res) => {
+  try {
+    const { imageBase64, mimeType } = req.body
+    if (!imageBase64) {
+      return res.json({ success: false, message: "Image is required" })
+    }
+
+    const foods = await foodModel.find({})
+    const menuList = foods.map(f => `- ID: ${f._id} | Name: ${f.name} | Category: ${f.category} | Price: $${f.price}`).join("\n")
+
+    const systemPrompt = `You are Chisto's AI Vision Assistant.
+The user has uploaded an image of food. Identify the food in the image.
+Then, look at our live menu below and find the BEST matching item (if any).
+Menu:
+${menuList}
+
+You MUST return your response as a valid JSON object EXACTLY like this:
+{
+  "reply": "I see a delicious pepperoni pizza! We have an amazing Margherita Pizza on our menu that you might love. Would you like to add it to your cart?",
+  "matchedItemId": "id_of_the_matched_item_from_menu_or_null_if_no_match"
+}
+Do not use markdown blocks around the JSON.`
+
+    const apiKey = process.env.GEMINI_API_KEY
+    if (!apiKey) {
+      return res.json({ success: false, message: "Gemini API key missing" })
+    }
+
+    // Clean base64 string if it contains data:image/...;base64,
+    let base64Data = imageBase64
+    if (base64Data.includes("base64,")) {
+      base64Data = base64Data.split("base64,")[1]
+    }
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: systemPrompt },
+                {
+                  inlineData: {
+                    mimeType: mimeType || "image/jpeg",
+                    data: base64Data
+                  }
+                }
+              ]
+            }
+          ]
+        })
+      }
+    )
+
+    const data = await response.json()
+    
+    if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+      const rawText = data.candidates[0].content.parts[0].text
+      // Extract JSON from response (in case Gemini added markdown block)
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0])
+        return res.json({ success: true, reply: parsed.reply, matchedItemId: parsed.matchedItemId })
+      } else {
+        return res.json({ success: true, reply: rawText, matchedItemId: null })
+      }
+    }
+
+    res.json({ success: false, message: "Failed to analyze image" })
+  } catch (error) {
+    console.error("AI Vision error:", error.message)
+    res.json({ success: false, message: "AI Vision is temporarily unavailable." })
+  }
+}
+
+module.exports = { handleChat, handleVision }
