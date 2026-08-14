@@ -15,6 +15,7 @@ const Chatbot = () => {
   ])
   const [isLoading, setIsLoading] = useState(false)
   const [previousOrdersText, setPreviousOrdersText] = useState('')
+  const [isListening, setIsListening] = useState(false)
   
   const navigate = useNavigate()
   
@@ -99,6 +100,46 @@ const Chatbot = () => {
     return parts.length > 0 ? parts : text
   }
 
+  // --- Voice Recognition Setup ---
+  let recognition = null;
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.lang = 'en-US';
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setMessage(transcript);
+      setIsListening(false);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error", event.error);
+      setIsListening(false);
+      toast.error("Microphone error. Please try again.");
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+  }
+
+  const toggleListen = () => {
+    if (isListening) {
+      recognition?.stop();
+      setIsListening(false);
+    } else {
+      recognition?.start();
+      setIsListening(true);
+    }
+  }
+
+  // --- Mood Chips Handler ---
+  const handleMoodClick = (moodPrompt) => {
+    setMessage(moodPrompt);
+  }
+
   const handleSend = async (e) => {
     e.preventDefault()
     if (!message.trim()) return
@@ -168,7 +209,24 @@ const Chatbot = () => {
             <div ref={messagesEndRef} />
           </div>
 
+          <div className="chatbot-mood-chips">
+            <button className="mood-chip" onClick={() => handleMoodClick("Surprise me with a highly rated dish based on my past orders!")}>🎲 Surprise Me</button>
+            <button className="mood-chip" onClick={() => handleMoodClick("Suggest something healthy and low-calorie.")}>🥗 Healthy</button>
+            <button className="mood-chip" onClick={() => handleMoodClick("I'm craving something really spicy!")}>🌶️ Spicy</button>
+            <button className="mood-chip" onClick={() => handleMoodClick("What's the best budget meal under ₹200?")}>💸 Budget</button>
+          </div>
+
           <form className="chatbot-input-area" onSubmit={handleSend}>
+            {recognition && (
+              <button 
+                type="button" 
+                className={`mic-btn ${isListening ? 'listening' : ''}`}
+                onClick={toggleListen}
+                title="Speak your order"
+              >
+                🎤
+              </button>
+            )}
             <input
               type="text"
               placeholder="Ask for food recommendations..."
