@@ -117,7 +117,8 @@ const PlaceOrder = () => {
         if (response.data.success) {
           navigate(`/order-confirm?orderId=${response.data.orderId}`)   // ✅ redirect
         } else {
-          alert("Order failed")
+          console.error("Order failed details:", response.data)
+          alert(response.data.message || "Order failed")
         }
       }
 
@@ -140,7 +141,8 @@ const PlaceOrder = () => {
         if (response.data.success) {
           window.location.replace(response.data.session_url)
         } else {
-          alert("Order failed")
+          console.error("Order failed details:", response.data)
+          alert(response.data.message || "Order failed")
         }
       }
 
