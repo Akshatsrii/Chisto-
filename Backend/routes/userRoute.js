@@ -68,5 +68,6 @@ userRouter.post("/prime/subscribe", authMiddleware, require("../controllers/user
 userRouter.post("/prime/verify", authMiddleware, require("../controllers/userController").verifyPrimeSubscription)
 userRouter.get("/referral-analytics", authMiddleware, require("../controllers/userController").getReferralAnalytics)
 userRouter.post("/save-push-subscription", authMiddleware, require("../controllers/userController").savePushSubscription)
+userRouter.get("/profile", authMiddleware, require("../controllers/userController").getUserProfile)
 
 module.exports = userRouter

@@ -4,7 +4,10 @@ import { assets } from '../../assets/assets'
 import { Link, useNavigate } from 'react-router-dom'
 import { StoreContext } from '../../Context/Storecontext'
 
+import { useTranslation } from 'react-i18next'
+
 const Navbar = ({ setShowLogin }) => {
+  const { t, i18n } = useTranslation()
 
   const { 
     token, 
@@ -64,11 +67,9 @@ const Navbar = ({ setShowLogin }) => {
   // Handle Orders click
   const handleOrdersClick = () => {
     if (!token) {
-      // If user is not logged in, show login popup
       setShowDropdown(false)
       setShowLogin(true)
     } else {
-      // If logged in, navigate to orders page
       setShowDropdown(false)
       navigate('/myorders')
     }
@@ -77,17 +78,18 @@ const Navbar = ({ setShowLogin }) => {
   // Handle Logout/Sign In click
   const handleLogoutClick = () => {
     if (!token) {
-      // If user is not logged in, show login popup
       setShowDropdown(false)
       setShowLogin(true)
     } else {
-      // If logged in, logout functionality
       setToken("")
       localStorage.removeItem("token")
       setShowDropdown(false)
-      // Navigate to home page (unlogged dashboard)
       navigate('/')
     }
+  }
+
+  const changeLanguage = (e) => {
+    i18n.changeLanguage(e.target.value)
   }
 
   // Close dropdown when clicking outside
@@ -104,15 +106,8 @@ const Navbar = ({ setShowLogin }) => {
     }
   }, [])
 
-  // Sync with token changes from context
-  useEffect(() => {
-    // This ensures navbar updates when token changes
-    console.log("Token state in Navbar:", token)
-  }, [token])
-
   return (
     <div className='navbar'>
-
       {/* LOGO */}
       <Link to="/" onClick={() => setMenu("home")}>
         <img src={assets.logo} alt='logo' className='logo' />
@@ -120,10 +115,10 @@ const Navbar = ({ setShowLogin }) => {
 
       {/* MENU */}
       <ul className='navbar-menu'>
-        <li className={menu === "home" ? "active" : ""} onClick={() => handleMenuClick("home", "home")}>Home</li>
-        <li className={menu === "menu" ? "active" : ""} onClick={() => handleMenuClick("menu", "explore-menu")}>Menu</li>
-        <li className={menu === "mobile-app" ? "active" : ""} onClick={() => handleMenuClick("mobile-app", "app-download")}>Mobile-app</li>
-        <li className={menu === "contact-us" ? "active" : ""} onClick={() => handleMenuClick("contact-us", "footer")}>Contact us</li>
+        <li className={menu === "home" ? "active" : ""} onClick={() => handleMenuClick("home", "home")}>{t('navbar.home')}</li>
+        <li className={menu === "menu" ? "active" : ""} onClick={() => handleMenuClick("menu", "explore-menu")}>{t('navbar.menu')}</li>
+        <li className={menu === "mobile-app" ? "active" : ""} onClick={() => handleMenuClick("mobile-app", "app-download")}>{t('navbar.mobileApp')}</li>
+        <li className={menu === "contact-us" ? "active" : ""} onClick={() => handleMenuClick("contact-us", "footer")}>{t('navbar.contactUs')}</li>
       </ul>
 
       {/* RIGHT */}
@@ -132,7 +127,7 @@ const Navbar = ({ setShowLogin }) => {
           <div className="navbar-search-bar-inline">
             <input 
               type="text" 
-              placeholder="Search dishes..." 
+              placeholder={t('navbar.search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-inline-input"
@@ -151,6 +146,12 @@ const Navbar = ({ setShowLogin }) => {
           </Link>
           {getCartCount() > 0 && <div className='dot'>{getCartCount()}</div>}
         </div>
+        
+        {/* LANGUAGE TOGGLE */}
+        <select onChange={changeLanguage} defaultValue={i18n.language} className="lang-toggle" style={{ padding: '5px', borderRadius: '5px', cursor: 'pointer', border: '1px solid #ccc' }}>
+          <option value="en">EN</option>
+          <option value="hi">HI</option>
+        </select>
 
         {/* PROFILE DROPDOWN */}
         <div className="navbar-profile" ref={dropdownRef}>
@@ -160,24 +161,19 @@ const Navbar = ({ setShowLogin }) => {
             onClick={toggleDropdown}
           />
 
-          {/* Dropdown shows for both logged in and not logged in users */}
           <ul className={`nav-profile-dropdown ${showDropdown ? 'show' : ''}`}>
             <li onClick={handleOrdersClick}>
               <img src={assets.bag_icon} alt="" />
-              <p>Orders</p>
+              <p>{t('navbar.orders')}</p>
             </li>
-
             <hr />
-
             <li onClick={handleLogoutClick}>
               <img src={assets.logout_icon} alt="" />
-              <p>{token ? 'Logout' : 'Sign In'}</p>
+              <p>{token ? t('navbar.logout') : t('navbar.signIn')}</p>
             </li>
           </ul>
         </div>
-
       </div>
-
     </div>
   )
 }

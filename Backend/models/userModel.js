@@ -58,7 +58,10 @@ const userSchema = new mongoose.Schema({
   },
   referredBy: {
     type: String
-  }
+  },
+  currentStreak: { type: Number, default: 0 },
+  longestStreak: { type: Number, default: 0 },
+  lastOrderDate: { type: Date, default: null }
 })
 
 module.exports = mongoose.model("User", userSchema)

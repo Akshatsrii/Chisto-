@@ -19,6 +19,12 @@ const Add = () => {
     category: "Salad"
   })
 
+  const [dietaryTags, setDietaryTags] = useState([])
+  const [allergens, setAllergens] = useState([])
+
+  const dietaryOptions = ["Veg", "Vegan", "Jain", "Gluten-Free"]
+  const allergenOptions = ["Nuts", "Dairy", "Gluten", "Soy"]
+
   // INPUT CHANGE HANDLER
   const onChangeHandler = (e) => {
     const { name, value } = e.target
@@ -28,6 +34,15 @@ const Add = () => {
   // IMAGE HANDLER
   const imageHandler = (e) => {
     setImage(e.target.files[0])
+  }
+
+  const handleCheckboxChange = (e, state, setState) => {
+    const { value, checked } = e.target
+    if (checked) {
+      setState([...state, value])
+    } else {
+      setState(state.filter(item => item !== value))
+    }
   }
 
   // OCR HANDLER
@@ -93,6 +108,8 @@ const Add = () => {
     formData.append("price", Number(data.price))
     formData.append("category", data.category)
     formData.append("dietaryPreference", data.dietaryPreference || "Unspecified")
+    formData.append("dietaryTags", JSON.stringify(dietaryTags))
+    formData.append("allergens", JSON.stringify(allergens))
     formData.append("image", image)
 
     try {
@@ -113,6 +130,8 @@ const Add = () => {
           category: "Salad"
         })
         setImage(false)
+        setDietaryTags([])
+        setAllergens([])
       } else {
         toast.error(response.data.message || "Error adding food")
       }
@@ -239,6 +258,43 @@ const Add = () => {
             />
           </div>
 
+        </div>
+
+        {/* DIETARY TAGS & ALLERGENS */}
+        <div style={{ display: 'flex', gap: '20px', marginTop: '10px', marginBottom: '20px' }}>
+          <div className="flex-col" style={{ flex: 1 }}>
+            <p style={{ fontWeight: 'bold' }}>Dietary Tags</p>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '5px' }}>
+              {dietaryOptions.map(tag => (
+                <label key={tag} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <input 
+                    type="checkbox" 
+                    value={tag} 
+                    checked={dietaryTags.includes(tag)}
+                    onChange={(e) => handleCheckboxChange(e, dietaryTags, setDietaryTags)} 
+                  />
+                  {tag}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex-col" style={{ flex: 1 }}>
+            <p style={{ fontWeight: 'bold', color: '#b91c1c' }}>Allergen Warnings</p>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '5px' }}>
+              {allergenOptions.map(allergen => (
+                <label key={allergen} style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#b91c1c' }}>
+                  <input 
+                    type="checkbox" 
+                    value={allergen} 
+                    checked={allergens.includes(allergen)}
+                    onChange={(e) => handleCheckboxChange(e, allergens, setAllergens)} 
+                  />
+                  {allergen}
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* SUBMIT BUTTON */}

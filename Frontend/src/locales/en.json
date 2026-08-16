@@ -1,0 +1,71 @@
+{
+  "navbar": {
+    "home": "Home",
+    "menu": "Menu",
+    "mobileApp": "Mobile App",
+    "contactUs": "Contact Us",
+    "search": "Search restaurants...",
+    "signIn": "Sign In",
+    "orders": "Orders",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "header": {
+    "title": "Order your favourite food here",
+    "subtitle": "Choose from a diverse menu featuring a delectable array of dishes. Our mission is to satisfy your cravings and elevate your dining experience.",
+    "viewMenu": "View Menu"
+  },
+  "cart": {
+    "title": "Cart Items",
+    "items": "Items",
+    "title_col": "Title",
+    "price": "Price",
+    "quantity": "Quantity",
+    "total": "Total",
+    "remove": "Remove",
+    "cartTotals": "Cart Totals",
+    "subtotal": "Subtotal",
+    "deliveryFee": "Delivery Fee",
+    "checkout": "PROCEED TO CHECKOUT",
+    "promoTitle": "If you have a promo code, Enter it here",
+    "apply": "Apply",
+    "groupOrderTitle": "Group Order in Progress",
+    "groupOrderDesc": "Share this link with your friends to let them add items to this cart!",
+    "copyLink": "Copy Group Link",
+    "copied": "Copied!"
+  },
+  "placeOrder": {
+    "deliveryInfo": "Delivery Information",
+    "firstName": "First Name",
+    "lastName": "LastName",
+    "email": "Email Address",
+    "street": "Street",
+    "city": "City",
+    "state": "State",
+    "zipCode": "Zip Code",
+    "country": "Country",
+    "phone": "Phone",
+    "cartTotals": "Cart Totals",
+    "subtotal": "Subtotal",
+    "deliveryFee": "Delivery Fee",
+    "total": "Total",
+    "paymentMethod": "Payment Method",
+    "cod": "Cash On Delivery",
+    "online": "Online Payment (Stripe)",
+    "proceedToPayment": "PROCEED TO PAYMENT"
+  },
+  "profile": {
+    "title": "User Profile",
+    "editProfile": "Edit Profile",
+    "primeBannerTitle": "You are a Chisto Prime Member!",
+    "primeBannerDesc": "Enjoy zero delivery fees on all your orders.",
+    "referEarnTitle": "Refer & Earn",
+    "referEarnDesc": "Share your code with friends. When they sign up, you both get 500 Loyalty Points!",
+    "yourCode": "Your Referral Code:",
+    "pointsBalance": "Points Balance:",
+    "streakTitle": "Your Ordering Streak",
+    "currentStreak": "Current Streak",
+    "longestStreak": "Longest Streak",
+    "weeks": "Weeks"
+  }
+}

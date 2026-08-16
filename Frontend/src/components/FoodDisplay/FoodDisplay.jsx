@@ -58,6 +58,8 @@ const FoodDisplay = ({ category }) => {
               restaurantName={item.restaurantName || "Chisto Kitchen"}
               inStock={item.inStock !== false}
               dietaryPreference={item.dietaryPreference}
+              dietaryTags={item.dietaryTags}
+              allergens={item.allergens}
               onReviewClick={() => setSelectedFood(item)}
             />
         ))}

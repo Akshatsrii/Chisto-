@@ -4,10 +4,12 @@ import { assets } from '../../assets/assets'
 import { StoreContext } from '../../Context/Storecontext'
 import { sendChatMessage } from '../../utils/gemini'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
 
 const Header = () => {
   const { food_list, addToCart } = useContext(StoreContext)
   const [isListening, setIsListening] = useState(false)
+  const { t } = useTranslation()
 
   const handleVoiceOrder = () => {
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
@@ -78,13 +80,10 @@ const Header = () => {
       style={{ backgroundImage: `url(${assets.header_img})` }}
     >
       <div className="header-contents">
-        <h2>Order your favourite food here</h2>
-        <p>
-          Choose from a diverse menu featuring a delectable array of dishes
-          crafted with the finest ingredients and culinary expertise.
-        </p>
+        <h2>{t('header.title')}</h2>
+        <p>{t('header.subtitle')}</p>
         <div style={{ display: 'flex', gap: '15px' }}>
-          <a href="#explore-menu"><button>View Menu</button></a>
+          <a href="#explore-menu"><button>{t('header.viewMenu')}</button></a>
           <button 
             className={`voice-btn ${isListening ? 'listening' : ''}`}
             onClick={handleVoiceOrder}

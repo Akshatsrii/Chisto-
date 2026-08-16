@@ -26,6 +26,14 @@ const foodSchema = new mongoose.Schema({
     enum: ["Veg", "Non-Veg", "Vegan", "Unspecified"],
     default: "Unspecified"
   },
+  dietaryTags: {
+    type: [String],
+    default: []
+  },
+  allergens: {
+    type: [String],
+    default: []
+  },
   inStock: {
     type: Boolean,
     default: true

@@ -3,6 +3,7 @@ import axios from "axios"
 import "./Cart.css"
 import { StoreContext } from "../../Context/Storecontext"
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 const CountdownTimer = ({ expiryDate }) => {
   const [timeLeft, setTimeLeft] = useState("")
@@ -30,6 +31,7 @@ const CountdownTimer = ({ expiryDate }) => {
 }
 
 const Cart = () => {
+  const { t } = useTranslation()
   const {
     cartItems,
     food_list,
@@ -192,12 +194,12 @@ const Cart = () => {
 
         {/* HEADER */}
         <div className="cart-items-title">
-          <p>Image</p>
-          <p>Title</p>
-          <p>Price</p>
-          <p>Quantity</p>
-          <p>Total</p>
-          <p>Remove</p>
+          <p>{t('cart.title_col', 'Image')}</p>
+          <p>{t('cart.title_col')}</p>
+          <p>{t('cart.price')}</p>
+          <p>{t('cart.quantity')}</p>
+          <p>{t('cart.total')}</p>
+          <p>{t('cart.remove')}</p>
         </div>
         <hr />
 
@@ -229,12 +231,12 @@ const Cart = () => {
             <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
               <input
                 type="text"
-                placeholder="Enter Promo Code"
+                placeholder={t('cart.promoTitle', 'Enter Promo Code')}
                 value={promoInput}
                 onChange={(e) => setPromoInput(e.target.value)}
                 style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
               />
-              <button onClick={applyPromoCode} style={{ padding: '10px 20px', background: 'black', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Apply</button>
+              <button onClick={applyPromoCode} style={{ padding: '10px 20px', background: 'black', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>{t('cart.apply')}</button>
             </div>
             
             <button 
@@ -287,8 +289,8 @@ const Cart = () => {
 
         {/* TOTALS */}
         <div className="cart-summary" style={{ marginTop: '30px' }}>
-          <p>Subtotal: <span>₹{subtotal}</span></p>
-          <p>Delivery Fee: <span>{/* Delivery logic will be handled at Placeorder, but we can show it here if we want */} Calculated at checkout</span></p>
+          <p>{t('cart.subtotal')}: <span>₹{subtotal}</span></p>
+          <p>{t('cart.deliveryFee')}: <span>Calculated at checkout</span></p>
           <p>Discount: <span style={{ color: 'green' }}>-₹{promoDiscount}</span></p>
           <p className="final-total">Total Payable (excl. delivery): <span>₹{finalAmount}</span></p>
         </div>
@@ -299,7 +301,7 @@ const Cart = () => {
           disabled={finalAmount === 0 || subtotal === 0}
           onClick={() => navigate("/order")}
         >
-          Proceed to Checkout
+          {t('cart.checkout')}
         </button>
 
       </div>

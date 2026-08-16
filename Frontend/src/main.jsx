@@ -4,6 +4,7 @@ import App from './App.jsx'
 import './index.css'
 import { BrowserRouter } from 'react-router-dom'
 import StoreContextProvider from './Context/Storecontext.jsx'
+import './i18n' // Import i18n configuration
 
 
 

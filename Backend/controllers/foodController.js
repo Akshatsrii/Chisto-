@@ -25,6 +25,8 @@ const addFood = async (req, res) => {
       price: req.body.price,
       category: req.body.category,
       dietaryPreference: req.body.dietaryPreference || "Unspecified",
+      dietaryTags: req.body.dietaryTags ? JSON.parse(req.body.dietaryTags) : [],
+      allergens: req.body.allergens ? JSON.parse(req.body.allergens) : [],
       image: req.file.filename,
       restaurantId: user._id,
       restaurantName: user.restaurantName || user.name

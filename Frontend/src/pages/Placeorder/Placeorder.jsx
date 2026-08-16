@@ -6,9 +6,10 @@ import { useNavigate } from "react-router-dom"
 import * as turf from "@turf/turf"
 import { saveOrderOffline } from "../../utils/idb"
 import { toast } from "react-toastify"
+import { useTranslation } from "react-i18next"
 
 const PlaceOrder = () => {
-
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   const {
@@ -377,15 +378,15 @@ const PlaceOrder = () => {
 
       {/* LEFT: DELIVERY DETAILS */}
       <div className="place-order-left">
-        <p className="title">Delivery Information</p>
+        <p className="title">{t('placeOrder.deliveryInfo')}</p>
 
         <div className="multi-fields">
-          <input name="firstName" placeholder="First name" value={address.firstName} onChange={onChangeHandler} required />
-          <input name="lastName" placeholder="Last name" value={address.lastName} onChange={onChangeHandler} required />
+          <input name="firstName" placeholder={t('placeOrder.firstName', 'First Name')} value={address.firstName} onChange={onChangeHandler} required />
+          <input name="lastName" placeholder={t('placeOrder.lastName', 'Last Name')} value={address.lastName} onChange={onChangeHandler} required />
         </div>
 
-        <input name="email" type="email" placeholder="Email address" value={address.email} onChange={onChangeHandler} required />
-        <input name="phone" placeholder="Phone" value={address.phone} onChange={onChangeHandler} required />
+        <input name="email" type="email" placeholder={t('placeOrder.email', 'Email Address')} value={address.email} onChange={onChangeHandler} required />
+        <input name="phone" placeholder={t('placeOrder.phone', 'Phone')} value={address.phone} onChange={onChangeHandler} required />
 
         {/* MAP LOCATION SEARCH */}
         <div className="location-search-container" style={{ position: 'relative', marginTop: '10px', marginBottom: '10px' }}>
@@ -430,13 +431,13 @@ const PlaceOrder = () => {
         </div>
 
         <div className="multi-fields">
-          <input name="street" placeholder="Street / Area" value={address.street} onChange={onChangeHandler} required />
-          <input name="city" placeholder="City" value={address.city} onChange={onChangeHandler} required />
+          <input name="street" placeholder={t('placeOrder.street', 'Street')} value={address.street} onChange={onChangeHandler} required />
+          <input name="city" placeholder={t('placeOrder.city', 'City')} value={address.city} onChange={onChangeHandler} required />
         </div>
 
         <div className="multi-fields">
-          <input name="state" placeholder="State" value={address.state} onChange={onChangeHandler} required />
-          <input name="zip" placeholder="Zip code" value={address.zip} onChange={onChangeHandler} required />
+          <input name="state" placeholder={t('placeOrder.state', 'State')} value={address.state} onChange={onChangeHandler} required />
+          <input name="zip" placeholder={t('placeOrder.zipCode', 'Zip code')} value={address.zip} onChange={onChangeHandler} required />
         </div>
 
         {/* SCHEDULING & TRAVEL OPTIONS */}
@@ -485,12 +486,12 @@ const PlaceOrder = () => {
           <h2>Cart Totals</h2>
 
           <div className="cart-total-details">
-            <p>Subtotal</p>
+            <p>{t('placeOrder.subtotal', 'Subtotal')}</p>
             <p>₹{getTotalCartAmount()}</p>
           </div>
 
           <div className="cart-total-details">
-            <p>Delivery Fee {surgeFee > 0 && <span style={{color: '#ef4444', fontSize: '12px', fontWeight: 'bold'}}>(Surge Applied)</span>}</p>
+            <p>{t('placeOrder.deliveryFee', 'Delivery Fee')} {surgeFee > 0 && <span style={{color: '#ef4444', fontSize: '12px', fontWeight: 'bold'}}>(Surge Applied)</span>}</p>
             <p>₹{deliveryFee}</p>
           </div>
 
@@ -512,20 +513,20 @@ const PlaceOrder = () => {
           <hr />
 
           <div className="cart-total-details total">
-            <b>Total</b>
+            <b>{t('placeOrder.total', 'Total')}</b>
             <b>₹{totalAmount}</b>
           </div>
 
           {/* PAYMENT METHOD */}
           <div className="payment-method">
-            <h3>Payment Method</h3>
+            <h3>{t('placeOrder.paymentMethod', 'Payment Method')}</h3>
             <label className={paymentMethod === "COD" ? "active" : ""}>
               <input
                 type="radio"
                 checked={paymentMethod === "COD"}
                 onChange={() => setPaymentMethod("COD")}
               />
-              Cash on Delivery (COD)
+              {t('placeOrder.cod', 'Cash on Delivery (COD)')}
             </label>
 
             <label className={paymentMethod === "ONLINE" ? "active" : ""}>
@@ -534,7 +535,7 @@ const PlaceOrder = () => {
                 checked={paymentMethod === "ONLINE"}
                 onChange={() => setPaymentMethod("ONLINE")}
               />
-              Online Payment (Stripe)
+              {t('placeOrder.online', 'Online Payment (Stripe)')}
             </label>
           </div>
 
@@ -558,7 +559,7 @@ const PlaceOrder = () => {
           )}
 
           <button type="submit" disabled={getTotalCartAmount() === 0}>
-            {groupRoomId ? "PROCEED TO SPLIT BILL" : "PLACE ORDER"}
+            {groupRoomId ? "PROCEED TO SPLIT BILL" : t('placeOrder.proceedToPayment', 'PLACE ORDER')}
           </button>
         </div>
       </div>

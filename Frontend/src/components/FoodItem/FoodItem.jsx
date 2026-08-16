@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 import "./FoodItem.css"
 import { StoreContext } from "../../Context/Storecontext"
 
-const FoodItem = ({ _id, name, price, description, image, rating = 4.5, restaurantName = "Chisto Kitchen", onReviewClick, inStock = true, dietaryPreference = "Unspecified" }) => {
+const FoodItem = ({ _id, name, price, description, image, rating = 4.5, restaurantName = "Chisto Kitchen", onReviewClick, inStock = true, dietaryPreference = "Unspecified", dietaryTags = [], allergens = [] }) => {
 
   const { cartItems, addToCart, removeFromCart, url } =
     useContext(StoreContext)
@@ -32,11 +32,29 @@ const FoodItem = ({ _id, name, price, description, image, rating = 4.5, restaura
 
   const getDietaryTag = (pref) => {
     switch (pref) {
-      case 'Veg': return <span className="diet-tag veg">🟢 Veg</span>
-      case 'Non-Veg': return <span className="diet-tag non-veg">🔴 Non-Veg</span>
-      case 'Vegan': return <span className="diet-tag vegan">🌱 Vegan</span>
+      case 'Veg': return <span className="diet-tag veg" key="veg">🟢 Veg</span>
+      case 'Non-Veg': return <span className="diet-tag non-veg" key="non-veg">🔴 Non-Veg</span>
+      case 'Vegan': return <span className="diet-tag vegan" key="vegan">🌱 Vegan</span>
       default: return null
     }
+  }
+
+  const renderDietaryTags = () => {
+    if (!dietaryTags || dietaryTags.length === 0) return null;
+    return dietaryTags.map(tag => (
+      <span key={tag} className={`diet-tag tag-${tag.toLowerCase()}`} style={{ marginLeft: '5px', fontSize: '10px', padding: '2px 4px', borderRadius: '4px', background: '#dcfce7', color: '#166534' }}>
+        {tag === 'Vegan' ? '🌱' : (tag === 'Jain' ? '🧅🚫' : '🟢')} {tag}
+      </span>
+    ));
+  }
+
+  const renderAllergens = () => {
+    if (!allergens || allergens.length === 0) return null;
+    return (
+      <div className="allergens-warning" style={{ fontSize: '10px', color: '#b91c1c', marginTop: '4px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+        ⚠️ Contains: {allergens.join(', ')}
+      </div>
+    );
   }
 
   return (
@@ -85,6 +103,10 @@ const FoodItem = ({ _id, name, price, description, image, rating = 4.5, restaura
           </div>
         </div>
         <p className="food-item-restaurant">by {restaurantName}</p>
+        <div style={{ marginBottom: '5px' }}>
+          {renderDietaryTags()}
+          {renderAllergens()}
+        </div>
         <p className="food-item-description">{description}</p>
         <p className="food-item-price">₹{price}</p>
       </div>

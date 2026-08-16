@@ -33,6 +33,46 @@ const sendOrderPushNotification = async (userId, title, body) => {
   }
 }
 
+// Helper to update user streak
+const updateStreak = async (userId) => {
+  try {
+    const user = await userModel.findById(userId)
+    if (!user) return
+
+    const today = new Date()
+    const lastOrder = user.lastOrderDate ? new Date(user.lastOrderDate) : null
+    
+    if (!lastOrder) {
+      user.currentStreak = 1
+      user.longestStreak = 1
+    } else {
+      const diffTime = Math.abs(today - lastOrder)
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+      if (diffDays <= 7) {
+        // Ordered within the same week, increment streak
+        user.currentStreak += 1
+        if (user.currentStreak > user.longestStreak) {
+          user.longestStreak = user.currentStreak
+        }
+
+        // Award loyalty points every 5th streak (e.g. 5, 10, 15)
+        if (user.currentStreak % 5 === 0) {
+          user.loyaltyPoints += 100 // Bonus 100 points
+          await sendOrderPushNotification(userId, "🔥 Streak Bonus!", `You hit a ${user.currentStreak} week streak! +100 Loyalty Points!`)
+        }
+      } else {
+        // Streak broken
+        user.currentStreak = 1
+      }
+    }
+    
+    user.lastOrderDate = today
+    await user.save()
+  } catch(err) {
+    console.error("Error updating streak", err)
+  }
+}
 
 // ==============================
 // PLACE ORDER (COD + STRIPE)
@@ -277,6 +317,9 @@ const updateStatus = async (req, res) => {
     // Send push notification
     if (order) {
       await sendOrderPushNotification(order.userId, "Order Update 🍔", `Your order status is now: ${status}`)
+      if (status === "Delivered") {
+        await updateStreak(order.userId)
+      }
     }
 
     res.json({
@@ -391,6 +434,9 @@ const updateRiderStatus = async (req, res) => {
 
     // Send push notification
     await sendOrderPushNotification(order.userId, "Delivery Update 🛵", `Your order status is now: ${status}`)
+    if (status === "Delivered") {
+      await updateStreak(order.userId)
+    }
 
     res.json({ success: true, message: `Status updated to ${status}` })
   } catch (error) {
