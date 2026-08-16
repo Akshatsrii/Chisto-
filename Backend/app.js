@@ -26,10 +26,25 @@ const port = process.env.PORT || 4000
 // ✅ CONNECT DATABASE
 connectDB()
 
+const helmet = require("helmet")
+const rateLimit = require("express-rate-limit")
+const mongoSanitize = require("express-mongo-sanitize")
+
 // Middlewares
 app.use(cors())
+app.use(helmet({ crossOriginResourcePolicy: false })) // Secure HTTP headers, allow cross-origin images
 app.use(express.json({ limit: "50mb" }))
 app.use(express.urlencoded({ extended: true, limit: "50mb" }))
+app.use(mongoSanitize()) // Prevent NoSQL Injection
+
+// General API Rate Limiter
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  message: { success: false, message: "Too many requests from this IP, please try again later." }
+})
+app.use("/api", generalLimiter)
+
 app.use("/uploads", express.static("uploads"))
 
 // Routes
