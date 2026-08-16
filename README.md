@@ -17,19 +17,6 @@
   
 </div>
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
-</p>
-
----
-
-## 🌐 Live Demo
-
-| Portal | Link |
-|---|---|
-| 🛍️ Customer App (Dashboard) | [food-ordering-eight-iota.vercel.app](https://food-ordering-eight-iota.vercel.app/) |
-| 🛠️ Admin / Partner Panel | [food-ordering-xo97.vercel.app](https://food-ordering-xo97.vercel.app/) |
-
 ---
 
 ## 📌 Overview
@@ -38,36 +25,31 @@
 
 ---
 
-## 🎨 Premium Branding & Theme
-* **Color System**: Adopts a curated, high-end **Deep Navy Blue** theme (`#0c2340`) across both customer and administrator web portals, removing standard templates in favor of custom-generated assets and modern typography (Outfit & Inter).
-* **Infinite Brand Slider**: Home screen features a hardware-accelerated CSS infinite marquee slider displaying restaurant partner brands with smooth transitions and hover-pause interactions.
+## 🚀 Advanced Features (Recently Added)
+
+### 👥 **Customer Experience & Ordering**
+- 🎙️ **AI Voice Ordering**: Click the "Voice Order" button, speak your craving (e.g., "I want a spicy chicken pizza"), and the AI will automatically find the best match and add it to your cart.
+- 🫂 **Group Ordering & Split Bill**: Create a group cart, invite friends via a shareable link, sync items in real-time via Socket.IO, and instantly split the bill (evenly or itemized) via Stripe!
+- 📍 **Smart Address Autocomplete**: Type your address and instantly get predictions and exact coordinates via the OpenStreetMap Nominatim API.
+- 📏 **OSRM Distance Routing**: Calculates the exact road distance from the restaurant to the delivery location to generate accurate dynamic delivery fees.
+- 🌧️ **Dynamic Weather & Surge Pricing**: Automatically checks the current weather (using a simulated API) and applies a "Rain Surge Fee" if the conditions are bad.
+- 📱 **Progressive Web App (PWA) & Offline Mode**: Install Chisto as a native app on your phone. Even if your internet goes down, you can browse cached pages and place orders offline (they sync automatically when you reconnect!).
+- 🏪 **Single-Restaurant Enforcement**: Mimics real-world logic—users can only add items from one restaurant at a time. The platform features dedicated pages for each of our 50 partner restaurants.
+
+### 🛡️ **Safety & Sustainability**
+- 📹 **WebRTC Secure Delivery Verification**: Customers and riders can initiate a secure, peer-to-peer live video call to verify high-value deliveries in real time!
+- 🍃 **Green Delivery Score**: Calculates and awards "Green Points" for eco-friendly deliveries (e.g., short distances, bicycle riders), gamifying sustainability.
+
+### 🛠️ **Admin & Partner Management**
+- 🍱 **Bento-Grid Admin Dashboard**: A beautiful, modern, Tailwind-powered Bento UI dashboard for the Admin panel with interactive charts (Recharts).
+- 🎟️ **Promo Code & Coupon System**: Admins can generate custom coupons (e.g., "CHISTO50"), set expiry dates, and usage limits, which users can apply seamlessly at checkout.
+- 📊 **Scale-Tested Database**: Seeded with **50 Unique Restaurants** and **750+ Dishes** to ensure robust performance and load testing.
 
 ---
 
-## ✨ Key Features
-
-### 👥 **Customer PWA Features**
-- 🔐 User registration and secure JWT login.
-- 🍔 Browse food items with category filters and **Smart Search Real-time Filters**.
-- 🛒 Dynamic cart management (add/remove items) with **Promo Code Carry-Over**.
-- 💳 Secure checkout with Stripe integration and Cash on Delivery support.
-- 📦 **Order Re-run**: One-click repeat order from receipt history.
-- 🗺️ **Live Leaflet Map Tracking**: Instantly tracks active orders in real-time inside modal maps.
-- 💬 **AI recommendation Chatbot**: Ask Gemini for food recommendations (e.g., "spicy veg food under ₹300") and add items directly to your cart with one click!
-- 💰 **Loyalty Point System**: Automatically earn 10 points per ₹100 spent on completed orders.
-- ⭐ **Verified Purchaser Reviews**: Review and rate food items only if you have ordered and received them.
-
-### 🏍️ **Delivery Rider Features**
-- 🔑 Secure Rider login and authentication (Seeded credentials: `rider@chisto.com` / `password123`).
-- 📦 **Open Orders Pool**: Accept or reject unassigned local deliveries.
-- 🏍️ **Milestone Updates**: Set orders to "Picked Up" or "Delivered" to instantly update the customer's tracking map in real-time.
-- 💸 **Earnings Dashboard**: Track completed deliveries and payouts (₹50 commission credited per delivery).
-
-### 📊 **Admin & Partner Dashboard**
-- 🔑 Secure super-admin and brand partner logins.
-- ➕ Menu management (Add/List/Remove dishes with image uploads).
-- 📈 **Advanced Analytics Dashboard**: Track Total Revenue, Average Order Value (AOV), Cancellation Rates, and Repeat Customer percentages.
-- 📊 **Visual Sales Charts**: Category-wise sales share meters and Top-Selling food item progress indicators.
+## 🎨 Premium Branding & Theme
+* **Color System**: Adopts a curated, high-end **Deep Navy Blue** theme (`#0c2340`) across both customer and administrator web portals, removing standard templates in favor of custom-generated assets and modern typography (Outfit & Inter).
+* **Infinite Brand Slider**: Home screen features a hardware-accelerated CSS infinite marquee slider displaying restaurant partner brands with smooth transitions and hover-pause interactions.
 
 ---
 
@@ -101,18 +83,6 @@
 
 ---
 
-## 📂 Project Structure
-```bash
-FoodTracking/
-├── Backend/          # Node REST APIs, Sockets & DB Controllers
-├── Frontend/         # PWA Client Application for Customers
-├── admin/            # Partner (Admin, Restaurant, Rider) Dashboard
-├── .gitignore        # Universal root Git ignore exclusions
-└── README.md
-```
-
----
-
 ## ⚙️ Installation & Setup
 
 ### 📋 Prerequisites
@@ -136,9 +106,9 @@ CLIENT_URL=http://localhost:5173
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
-Run database seeds to set up restaurants, admins, default coupons, and riders:
+Run database seeds to set up 50 restaurants and 750+ food items:
 ```bash
-node populate_restaurants.js
+node seed.js
 ```
 
 Start the backend:
@@ -150,11 +120,6 @@ npm run dev
 ```bash
 cd ../Frontend
 npm install
-```
-
-Create `.env` in the `Frontend` directory:
-```env
-VITE_API_URL=http://localhost:4000/api
 ```
 
 Start the client application:
@@ -178,4 +143,3 @@ npm run dev
 ## 🔑 Default Login Credentials
 * **Super Admin**: `admin@chisto.com` / `password123`
 * **Rider Partner**: `rider@chisto.com` / `password123`
-* **Restaurant Partner**: `punjabidhaba@chisto.com` / `password123`
