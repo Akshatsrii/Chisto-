@@ -8,6 +8,43 @@ const userModel = require("./models/userModel")
 const orderModel = require("./models/orderModel")
 const Stripe = require("stripe")
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+const swaggerUi = require("swagger-ui-express")
+const swaggerJsdoc = require("swagger-jsdoc")
+
+// Swagger Configuration
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Chisto Food Ordering API",
+      version: "1.0.0",
+      description: "API Documentation for Chisto Food Ordering Platform",
+    },
+    servers: [
+      {
+        url: "http://localhost:4000",
+        description: "Development Server",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+  apis: ["./routes/*.js"], // Path to the API docs
+}
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions)
 
 const foodRouter = require("./routes/foodRoute")
 const userRouter = require("./routes/userRoute")
@@ -56,6 +93,9 @@ app.use("/api/chat", chatRouter)
 app.use("/api/coupon", couponRouter)
 app.use("/api/review", reviewRouter)
 app.use("/api/restaurant", restaurantRouter)
+
+// Swagger API Documentation Route
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 
 // Test Route

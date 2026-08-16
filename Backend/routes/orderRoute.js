@@ -16,6 +16,35 @@ const authMiddleware = require("../middleware/auth")
 
 const orderRouter = express.Router()
 
+/**
+ * @swagger
+ * /api/order/place:
+ *   post:
+ *     summary: Place a new order
+ *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *               amount:
+ *                 type: number
+ *               address:
+ *                 type: object
+ *               paymentMethod:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Order placed
+ */
 orderRouter.post("/place", authMiddleware, placeOrder)
 orderRouter.post("/verify", authMiddleware, verifyOrder)
 orderRouter.get("/user", authMiddleware, userOrders)

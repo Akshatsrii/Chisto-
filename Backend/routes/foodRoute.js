@@ -19,7 +19,16 @@ const upload = multer({ storage })
 // ➕ ADD
 foodRouter.post("/add", authMiddleware, upload.single("image"), addFood)
 
-// 📋 LIST
+/**
+ * @swagger
+ * /api/food/list:
+ *   get:
+ *     summary: Get all food items
+ *     tags: [Food]
+ *     responses:
+ *       200:
+ *         description: List of all foods
+ */
 foodRouter.get("/list", listFood)
 
 // ❌ REMOVE
