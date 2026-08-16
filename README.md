@@ -5,24 +5,43 @@
 </p>
 
 <div align="center">
-  
+
   [![Made with MERN](https://img.shields.io/badge/Made%20with-MERN-FF6B35?style=for-the-badge&logo=mongodb)](https://github.com)
   [![CI/CD Pipeline](https://github.com/Akshatsrii/Food-Ordering/actions/workflows/ci.yml/badge.svg)](https://github.com/Akshatsrii/Food-Ordering/actions)
   [![Stripe Integration](https://img.shields.io/badge/Payment-Stripe-635BFF?style=for-the-badge&logo=stripe)](https://stripe.com)
   [![JWT Auth](https://img.shields.io/badge/Auth-JWT-000000?style=for-the-badge&logo=jsonwebtokens)](https://jwt.io)
+  [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-2ea44f?style=for-the-badge&logo=git)](CONTRIBUTING.md)
   [![License](https://img.shields.io/badge/License-MIT-FFA500.svg?style=for-the-badge)](LICENSE)
-  
-  **A scalable, full-stack food delivery web application with custom branding, real-time tracking, an AI chatbot, and a rider ecosystem**
+
+  **A scalable, full-stack food delivery web application with custom branding, real-time tracking, an AI chatbot, and a complete rider ecosystem**
 
   ### 🔗 [Live Customer App](https://food-ordering-eight-iota.vercel.app/) &nbsp;|&nbsp; [Live Admin Panel](https://food-ordering-xo97.vercel.app/)
-  
+
 </div>
+
+---
+
+## 📖 Table of Contents
+
+- [Overview](#-overview)
+- [Advanced Features](#-advanced-features-recently-added)
+- [Premium Branding & Theme](#-premium-branding--theme)
+- [Tech Stack](#-tech-stack)
+- [System Architecture](#-system-architecture)
+- [Folder Structure](#-folder-structure)
+- [Installation & Setup](#️-installation--setup)
+- [Default Login Credentials](#-default-login-credentials)
+- [API Documentation](#-api-documentation)
+- [Roadmap](#-roadmap)
+- [Contributing](#-contributing)
+- [Author](#-author)
+- [License](#-license)
 
 ---
 
 ## 📌 Overview
 
-**Chisto** is a premium, production-ready MERN stack food delivery platform. Designed with custom branding, an interactive AI food chatbot, real-time status updates via Socket.IO, active Leaflet mapping, a dedicated Rider Partner module, and Progressive Web App (PWA) capabilities, Chisto showcases a production-ready system architecture.
+**Chisto** is a premium, production-ready MERN stack food delivery platform. Designed with custom branding, an interactive AI food chatbot, real-time status updates via Socket.IO, active Leaflet mapping, a dedicated Rider Partner module, and Progressive Web App (PWA) capabilities, Chisto showcases a production-ready system architecture — built end-to-end to demonstrate real-world scale, security, and UX polish rather than a typical CRUD tutorial project.
 
 ---
 
@@ -49,7 +68,7 @@
 - 🎟️ **Promo Code & Coupon System**: Admins can generate custom coupons (e.g., "CHISTO50"), set expiry dates, and usage limits, which users can apply seamlessly at checkout.
 - 📄 **Smart Menu Import (OCR)**: Restaurant partners can upload a photo of their physical menu, and Tesseract.js will automatically extract text to auto-fill the Add Food form.
 - 👨‍🍳 **Live Kitchen Load Indicator**: Calculates real-time kitchen busyness based on pending orders, updating the frontend dynamically via Socket.IO.
-- 📊 **Scale-Tested Database**: Seeded with **50 Unique Restaurants** and **750+ Dishes** to ensure robust performance and load testing.
+- 📊 **Scale-Tested Database**: Seeded with **50 unique restaurants** and **750+ dishes** to ensure robust performance and load testing.
 
 ### 🌟 **Growth & Engagement**
 - 👑 **Chisto Prime Subscription**: Integrated Stripe recurring billing for a Prime membership that gives users unlimited free delivery.
@@ -65,8 +84,27 @@
 ---
 
 ## 🎨 Premium Branding & Theme
-* **Color System**: Adopts a curated, high-end **Deep Navy Blue** theme (`#0c2340`) across both customer and administrator web portals, removing standard templates in favor of custom-generated assets and modern typography (Outfit & Inter).
-* **Infinite Brand Slider**: Home screen features a hardware-accelerated CSS infinite marquee slider displaying restaurant partner brands with smooth transitions and hover-pause interactions.
+- **Color System**: Adopts a curated, high-end **Deep Navy Blue** theme (`#0c2340`) across both customer and administrator web portals, removing standard templates in favor of custom-generated assets and modern typography (Outfit & Inter).
+- **Infinite Brand Slider**: Home screen features a hardware-accelerated CSS infinite marquee slider displaying restaurant partner brands with smooth transitions and hover-pause interactions.
+
+---
+
+## 🧰 Tech Stack
+
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React, Vite, Tailwind CSS, Recharts, react-i18next |
+| **Admin Panel** | React, Tailwind CSS (Bento UI), Recharts |
+| **Backend** | Node.js, Express.js, Socket.IO |
+| **Database** | MongoDB (Mongoose ODM) |
+| **Auth & Security** | JWT, Helmet, express-mongo-sanitize, express-rate-limit |
+| **Payments** | Stripe (one-time + recurring billing) |
+| **AI / ML** | Gemini API (chatbot & voice order matching), Tesseract.js (OCR) |
+| **Maps & Routing** | Leaflet, OpenStreetMap Nominatim, OSRM |
+| **Real-time** | Socket.IO, WebRTC, Web Push API (VAPID) |
+| **Testing** | Jest, Supertest, Vitest, React Testing Library |
+| **CI/CD & Docs** | GitHub Actions, Swagger/OpenAPI |
+| **Deployment** | Vercel |
 
 ---
 
@@ -77,8 +115,8 @@
 │                     CLIENT LAYER                        │
 │                (Progressive Web Apps)                   │
 ├─────────────────────┬───────────────────────────────────┤
-│   React Frontend    │      React Partner Panel          │
-│   (Customer Side)   │      (Admin, Restaurant, Rider)   │
+│   React Frontend     │      React Partner Panel          │
+│   (Customer Side)     │      (Admin, Restaurant, Rider)   │
 └──────────┬──────────┴───────────────┬───────────────────┘
            │                          │
            │      REST & Sockets      │
@@ -86,16 +124,44 @@
            └──────────┬───────────────┘
                        ↓
            ┌──────────────────────┐
-           │   Node.js Backend    │
-           │   Express.js Server  │
+           │   Node.js Backend     │
+           │   Express.js Server   │
            └──────────┬───────────┘
                        │
              ┌─────────┴─────────┐
              ↓                   ↓
   ┌──────────────────┐  ┌──────────────────┐
-  │ MongoDB Database │  │   Socket.IO      │
-  │ (Data Storage)   │  │ (Real-Time Comm) │
+  │ MongoDB Database  │  │   Socket.IO       │
+  │ (Data Storage)    │  │ (Real-Time Comm)  │
   └──────────────────┘  └──────────────────┘
+```
+
+---
+
+## 📁 Folder Structure
+
+```
+Chisto/
+├── Backend/
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── middleware/
+│   ├── seed.js
+│   └── server.js
+├── Frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── context/
+│   │   └── assets/
+│   └── vite.config.js
+└── admin/
+    ├── src/
+    │   ├── components/
+    │   ├── pages/
+    │   └── assets/
+    └── vite.config.js
 ```
 
 ---
@@ -103,7 +169,7 @@
 ## ⚙️ Installation & Setup
 
 ### 📋 Prerequisites
-Before you begin, ensure you have Node.js, MongoDB, and a Stripe Account (for payments).
+Before you begin, ensure you have Node.js, MongoDB, and a Stripe account (for payments).
 
 ### 🚀 Quick Start
 
@@ -137,10 +203,6 @@ npm run dev
 ```bash
 cd ../Frontend
 npm install
-```
-
-Start the client application:
-```bash
 npm run dev
 ```
 
@@ -148,15 +210,63 @@ npm run dev
 ```bash
 cd ../admin
 npm install
-```
-
-Start the panel:
-```bash
 npm run dev
 ```
 
 ---
 
 ## 🔑 Default Login Credentials
-* **Super Admin**: `admin@chisto.com` / `password123`
-* **Rider Partner**: `rider@chisto.com` / `password123`
+- **Super Admin**: `admin@chisto.com` / `password123`
+- **Rider Partner**: `rider@chisto.com` / `password123`
+
+> ⚠️ These are demo credentials for local/testing use only — rotate them before any production deployment.
+
+---
+
+## 📚 API Documentation
+
+Once the backend is running, the full interactive OpenAPI spec is available at:
+
+```
+http://localhost:4000/api-docs
+```
+
+Use it to explore and test every endpoint (auth, orders, menu, payments, rider tracking) directly from the browser.
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Native mobile app (React Native) for customers and riders
+- [ ] Multi-currency support for international expansion
+- [ ] Admin analytics: cohort retention & LTV dashboards
+- [ ] Dark mode across customer and admin panels
+- [ ] Automated rider dispatch optimization
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+Please make sure tests pass (`npm test`) and linting is clean before submitting.
+
+---
+
+## 👤 Author
+
+**Akshat Srivastava**
+- GitHub: [@Akshatsrii](https://github.com/Akshatsrii)
+- Portfolio: Hosted on Vercel
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
