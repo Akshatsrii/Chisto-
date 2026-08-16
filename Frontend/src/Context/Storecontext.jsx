@@ -117,21 +117,7 @@ const StoreContextProvider = ({ children }) => {
       return
     }
 
-    // Phase 11: Enforce Single-Restaurant Ordering
-    const newFood = food_list.find(f => f._id === itemId)
-    if (newFood) {
-      const cartItemIds = Object.keys(cartItems).filter(id => cartItems[id] > 0)
-      if (cartItemIds.length > 0) {
-        const existingFood = food_list.find(f => f._id === cartItemIds[0])
-        if (existingFood && existingFood.restaurantId !== newFood.restaurantId) {
-          toast.error("You can only order from one restaurant at a time. Clear your cart to switch.", {
-            position: "top-center",
-            theme: "dark"
-          })
-          return
-        }
-      }
-    }
+    // Single-Restaurant Enforcement Removed (Phase 15a)
 
     // 🔥 Optimistic UI
     setCartItems(prev => ({

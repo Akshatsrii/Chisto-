@@ -5,6 +5,12 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  groupId: {
+    type: String
+  },
+  restaurantId: {
+    type: String
+  },
   items: {
     type: Array,
     required: true

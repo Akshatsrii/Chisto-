@@ -12,6 +12,30 @@ const MyOrders = () => {
   const navigate = useNavigate()
 
   const [orders, setOrders] = useState([])
+  const groupedOrders = React.useMemo(() => {
+    const groups = {};
+    orders.forEach(o => {
+      const key = o.groupId || o._id;
+      if (!groups[key]) {
+        groups[key] = {
+          id: key,
+          date: o.date,
+          subOrders: [],
+          amount: 0,
+          payment: o.payment,
+          paymentMethod: o.paymentMethod,
+          co2Saved: 0,
+          items: [],
+          address: o.address
+        }
+      }
+      groups[key].subOrders.push(o);
+      groups[key].amount += o.amount;
+      groups[key].co2Saved += (o.co2Saved || 0);
+      groups[key].items.push(...o.items);
+    });
+    return Object.values(groups).sort((a,b) => new Date(b.date) - new Date(a.date));
+  }, [orders]);
   const [loading, setLoading] = useState(true)
   
   // Modals state
@@ -351,12 +375,9 @@ const MyOrders = () => {
         </div>
       ) : (
         <div className="container">
-          {orders.map((order) => {
-            const orderStatus = order.status || "Food Processing"
-            const statusClass = orderStatus.replace(/\s+/g, '-').toLowerCase()
-
+          {groupedOrders.map((group) => {
             return (
-              <div key={order._id} className="my-orders-order">
+              <div key={group.id} className="my-orders-order">
                 {/* Parcel Icon */}
                 <div className="parcel-icon-wrapper">
                   <img src={assets.parcel_icon} alt="Parcel" />
@@ -366,16 +387,16 @@ const MyOrders = () => {
                 <div className="order-items-info">
                   <p className="order-items-title">Items Ordered</p>
                   <p className="order-items-list">
-                    {order.items.map((item, index) =>
-                      index === order.items.length - 1
+                    {group.items.map((item, index) =>
+                      index === group.items.length - 1
                         ? `${item.name} x ${item.quantity}`
                         : `${item.name} x ${item.quantity}, `
                     )}
                   </p>
                   
-                  {order.co2Saved > 0 && (
+                  {group.co2Saved > 0 && (
                     <div style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#ecfdf5', color: '#059669', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', border: '1px solid #a7f3d0' }}>
-                      🌿 {order.co2Saved.toFixed(1)}g CO2 Saved (Green Score: A+)
+                      🌿 {group.co2Saved.toFixed(1)}g CO2 Saved (Green Score: A+)
                     </div>
                   )}
                 </div>
@@ -383,42 +404,52 @@ const MyOrders = () => {
                 {/* Amount */}
                 <div className="order-amount-info">
                   <p className="meta-label">Amount Paid</p>
-                  <p className="order-amount">₹{order.amount}</p>
+                  <p className="order-amount">₹{group.amount}</p>
                 </div>
 
                 {/* Status Indicator */}
                 <div className="order-status-info">
                   <p className="meta-label">Status</p>
-                  <div className="status-badge-container">
-                    <span className={order.payment ? "paid-badge" : "pending-badge"}>
-                      {order.payment ? "Paid (Online)" : "COD"}
+                  <div className="status-badge-container" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <span className={group.payment ? "paid-badge" : "pending-badge"}>
+                      {group.payment ? "Paid (Online)" : "COD"}
                     </span>
-                    <div className="status-live-tracking">
-                      <span className={`status-dot ${statusClass}`}>●</span>
-                      <small className="tracking-text"> {orderStatus}</small>
-                    </div>
+                    {group.subOrders.map(sub => {
+                      const statusClass = (sub.status || "Food Processing").replace(/\s+/g, '-').toLowerCase()
+                      return (
+                        <div key={sub._id} className="status-live-tracking" style={{ marginTop: '4px' }}>
+                          <span className={`status-dot ${statusClass}`}>●</span>
+                          <small className="tracking-text" style={{ fontSize: '11px' }}>
+                            {group.subOrders.length > 1 ? `${sub.items[0]?.restaurantName || 'Restaurant'}: ` : ''}{sub.status || "Food Processing"}
+                          </small>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
 
                 {/* Date */}
                 <div className="order-date-info">
                   <p className="meta-label">Order Date</p>
-                  <p className="order-date">{new Date(order.date).toLocaleDateString()}</p>
+                  <p className="order-date">{new Date(group.date).toLocaleDateString()}</p>
                 </div>
 
                 {/* Responsive Action Buttons */}
                 <div className="order-actions-grid">
-                  <button className="view-details-btn" onClick={() => setDetailOrder(order)}>
+                  <button className="view-details-btn" onClick={() => setDetailOrder(group)}>
                     Receipt 📄
                   </button>
 
                   {/* Show Track Map button for active prep/delivery orders */}
-                  {(orderStatus === "Food Processing" || orderStatus === "Out for Delivery" || orderStatus === "Payment Verification Pending") ? (
-                    <button className="track-map-btn" onClick={() => setTrackingOrder(order)}>
+                  {group.subOrders.some(sub => ["Food Processing", "Out for Delivery", "Payment Verification Pending"].includes(sub.status)) ? (
+                    <button className="track-map-btn" onClick={() => {
+                        const activeSub = group.subOrders.find(sub => ["Food Processing", "Out for Delivery", "Payment Verification Pending"].includes(sub.status)) || group.subOrders[0];
+                        setTrackingOrder(activeSub);
+                    }}>
                       Track Live 📍
                     </button>
                   ) : (
-                    <button className="reorder-btn" onClick={() => handleReorder(order.items)}>
+                    <button className="reorder-btn" onClick={() => handleReorder(group.items)}>
                       Order Again 🔄
                     </button>
                   )}
@@ -472,7 +503,7 @@ const MyOrders = () => {
             
             <div className="modal-body">
               <div className="receipt-section">
-                <p><b>Order ID:</b> {detailOrder._id}</p>
+                <p><b>Order ID:</b> {detailOrder.id}</p>
                 <p><b>Date:</b> {new Date(detailOrder.date).toLocaleString()}</p>
                 <p><b>Payment Type:</b> {detailOrder.paymentMethod || (detailOrder.payment ? "Stripe Checkout" : "Cash on Delivery")}</p>
               </div>

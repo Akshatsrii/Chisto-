@@ -78,6 +78,8 @@ const updateStreak = async (userId) => {
   }
 }
 
+const mongoose = require("mongoose")
+
 // ==============================
 // PLACE ORDER (COD + STRIPE)
 // ==============================
@@ -113,14 +115,33 @@ const placeOrder = async (req, res) => {
       )
     }
 
-    // ======================
-    // 🟢 CASH ON DELIVERY
-    // ======================
-    if (paymentMethod === "COD") {
+    // Group items by restaurant
+    const restaurantGroups = {}
+    items.forEach(item => {
+      const rId = item.restaurantId || "admin"
+      if (!restaurantGroups[rId]) {
+        restaurantGroups[rId] = { items: [], subtotal: 0, restaurantName: item.restaurantName || "Chisto Kitchen" }
+      }
+      restaurantGroups[rId].items.push(item)
+      restaurantGroups[rId].subtotal += (item.price * item.quantity)
+    })
+
+    const numRestaurants = Object.keys(restaurantGroups).length
+    const deliveryFeePerRest = Math.round(deliveryFee / numRestaurants)
+    const surgeFeePerRest = Math.round((surgeFee || 0) / numRestaurants)
+    const groupId = new mongoose.Types.ObjectId().toString()
+    const newOrders = []
+
+    for (const rId of Object.keys(restaurantGroups)) {
+      const group = restaurantGroups[rId]
+      const orderAmount = group.subtotal + deliveryFeePerRest + surgeFeePerRest
+      
       const newOrder = new orderModel({
         userId,
-        items,
-        amount, // This amount from frontend already includes the delivery fee logic if it was shown correctly, but we'll accept it as is.
+        groupId,
+        restaurantId: rId,
+        items: group.items,
+        amount: orderAmount,
         address,
         payment: false,
         isScheduled: isScheduled || false,
@@ -128,11 +149,17 @@ const placeOrder = async (req, res) => {
         travelDetails: isScheduled ? travelDetails : null,
         distance: distance || 5, // fallback 5km
         status: isScheduled ? "Scheduled (Awaiting Date)" : "Food Processing",
-        surgeFee: surgeFee || 0,
+        surgeFee: surgeFeePerRest,
         weatherCondition: weatherCondition || "Clear"
       })
+      newOrders.push(newOrder)
+    }
 
-      await newOrder.save()
+    // ======================
+    // 🟢 CASH ON DELIVERY
+    // ======================
+    if (paymentMethod === "COD") {
+      await orderModel.insertMany(newOrders)
 
       // award loyalty points (₹100 spent = 10 points)
       const pointsEarned = Math.floor(amount / 100) * 10
@@ -151,22 +178,9 @@ const placeOrder = async (req, res) => {
     // 🔵 ONLINE PAYMENT (STRIPE)
     // ======================
     if (paymentMethod === "ONLINE") {
-      const newOrder = new orderModel({
-        userId,
-        items,
-        amount,
-        address,
-        payment: false,
-        status: "Payment Verification Pending",
-        isScheduled: isScheduled || false,
-        scheduledDate: isScheduled ? new Date(scheduledDate) : null,
-        travelDetails: isScheduled ? travelDetails : null,
-        distance: distance || 5, // fallback 5km
-        surgeFee: surgeFee || 0,
-        weatherCondition: weatherCondition || "Clear"
-      })
-
-      await newOrder.save()
+      // For online payment, set status
+      newOrders.forEach(o => o.status = "Payment Verification Pending")
+      await orderModel.insertMany(newOrders)
 
       const line_items = items.map((item) => ({
         price_data: {
@@ -192,12 +206,25 @@ const placeOrder = async (req, res) => {
           quantity: 1
         })
       }
+      
+      // surge fee if any
+      if (surgeFee > 0) {
+        line_items.push({
+          price_data: {
+            currency: "inr",
+            product_data: { name: "Surge Fee" },
+            unit_amount: surgeFee * 100
+          },
+          quantity: 1
+        })
+      }
 
       const session = await stripe.checkout.sessions.create({
         line_items,
         mode: "payment",
-        success_url: `${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
-        cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`
+        // Pass groupId as orderId so verifyOrder marks all sub-orders as paid
+        success_url: `${frontend_url}/verify?success=true&orderId=${groupId}`,
+        cancel_url: `${frontend_url}/verify?success=false&orderId=${groupId}`
       })
 
       return res.json({
@@ -221,11 +248,28 @@ const verifyOrder = async (req, res) => {
     const { success, orderId } = req.body
 
     if (success === "true") {
-      const order = await orderModel.findByIdAndUpdate(orderId, { 
-        payment: true,
-        status: "Payment Verification Pending"
-      })
-      const pointsEarned = Math.floor((order ? order.amount : 0) / 100) * 10
+      // First check if it's a groupId
+      let orders = await orderModel.find({ groupId: orderId })
+      
+      let totalAmount = 0
+      
+      if (orders && orders.length > 0) {
+        // It's a grouped order
+        await orderModel.updateMany({ groupId: orderId }, {
+          payment: true,
+          status: "Payment Verification Pending"
+        })
+        totalAmount = orders.reduce((sum, o) => sum + o.amount, 0)
+      } else {
+        // Fallback to single order ID
+        const order = await orderModel.findByIdAndUpdate(orderId, { 
+          payment: true,
+          status: "Payment Verification Pending"
+        })
+        if (order) totalAmount = order.amount
+      }
+
+      const pointsEarned = Math.floor(totalAmount / 100) * 10
       await userModel.findByIdAndUpdate(req.userId, { 
         cartData: {},
         $inc: { loyaltyPoints: pointsEarned }
@@ -233,7 +277,11 @@ const verifyOrder = async (req, res) => {
 
       res.json({ success: true, message: "Payment Successful" })
     } else {
-      await orderModel.findByIdAndDelete(orderId)
+      // Delete orders if failed
+      const deletedGroup = await orderModel.deleteMany({ groupId: orderId })
+      if (deletedGroup.deletedCount === 0) {
+        await orderModel.findByIdAndDelete(orderId)
+      }
       res.json({ success: false, message: "Payment Failed" })
     }
   } catch (error) {
