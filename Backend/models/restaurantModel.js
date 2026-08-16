@@ -10,7 +10,19 @@ const restaurantSchema = new mongoose.Schema({
     {
       type: String // We will store dates as "YYYY-MM-DD" for simplicity
     }
-  ]
+  ],
+  latitude: {
+    type: Number,
+    default: 28.6139 // Default to Delhi (can be configured by admin)
+  },
+  longitude: {
+    type: Number,
+    default: 77.2090
+  },
+  maxDeliveryRadius: {
+    type: Number,
+    default: 5 // Default 5 km
+  }
 })
 
 const restaurantModel = mongoose.models.restaurant || mongoose.model("restaurant", restaurantSchema)

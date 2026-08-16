@@ -6,18 +6,27 @@ import './Availability.css'
 const Availability = () => {
   const url = "http://localhost:4000"
   const restaurantName = localStorage.getItem("admin-restaurantName")
+  
   const [unavailableDates, setUnavailableDates] = useState([])
   const [newDate, setNewDate] = useState("")
+  
+  // Location Settings
+  const [latitude, setLatitude] = useState(28.6139)
+  const [longitude, setLongitude] = useState(77.2090)
+  const [maxDeliveryRadius, setMaxDeliveryRadius] = useState(5)
 
   const fetchAvailability = async () => {
     try {
       const response = await axios.get(`${url}/api/restaurant/availability/${restaurantName}`)
       if (response.data.success) {
-        setUnavailableDates(response.data.data)
+        setUnavailableDates(response.data.data.unavailableDates || [])
+        if (response.data.data.latitude) setLatitude(response.data.data.latitude)
+        if (response.data.data.longitude) setLongitude(response.data.data.longitude)
+        if (response.data.data.maxDeliveryRadius) setMaxDeliveryRadius(response.data.data.maxDeliveryRadius)
       }
     } catch (error) {
       console.log(error)
-      toast.error("Error fetching availability")
+      toast.error("Error fetching settings")
     }
   }
 
@@ -45,21 +54,24 @@ const Availability = () => {
     setUnavailableDates(unavailableDates.filter(date => date !== dateToRemove))
   }
 
-  const saveAvailability = async () => {
+  const saveSettings = async () => {
     try {
       const response = await axios.post(`${url}/api/restaurant/availability/update`, {
         restaurantName,
-        unavailableDates
+        unavailableDates,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+        maxDeliveryRadius: parseFloat(maxDeliveryRadius)
       })
 
       if (response.data.success) {
-        toast.success("Availability calendar saved!")
+        toast.success("Settings saved successfully!")
       } else {
-        toast.error("Failed to save calendar")
+        toast.error("Failed to save settings")
       }
     } catch (error) {
       console.log(error)
-      toast.error("Error saving calendar")
+      toast.error("Error saving settings")
     }
   }
 
@@ -76,37 +88,83 @@ const Availability = () => {
   return (
     <div className="availability-page">
       <div className="availability-header">
-        <h2>Restaurant Availability Calendar</h2>
-        <p>Mark the days when <strong>{restaurantName}</strong> will be closed. Users won't be able to schedule orders for these dates.</p>
+        <h2>Restaurant Settings & Availability</h2>
+        <p>Configure delivery zones and mark the days when <strong>{restaurantName}</strong> will be closed.</p>
       </div>
 
-      <div className="availability-controls">
-        <input 
-          type="date" 
-          value={newDate}
-          min={new Date().toISOString().split("T")[0]} // Cant select past dates
-          onChange={(e) => setNewDate(e.target.value)}
-        />
-        <button className="add-btn" onClick={handleAddDate}>Mark as Closed</button>
+      <div className="settings-container" style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
+        
+        {/* Availability Calendar */}
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <h3>Calendar (Closed Dates)</h3>
+          <div className="availability-controls" style={{ marginTop: '10px' }}>
+            <input 
+              type="date" 
+              value={newDate}
+              min={new Date().toISOString().split("T")[0]} 
+              onChange={(e) => setNewDate(e.target.value)}
+            />
+            <button className="add-btn" onClick={handleAddDate}>Mark as Closed</button>
+          </div>
+
+          <div className="availability-list">
+            {unavailableDates.length === 0 ? (
+              <p className="no-dates">Your restaurant is fully available everyday! 🎉</p>
+            ) : (
+              <ul>
+                {unavailableDates.sort().map((date, index) => (
+                  <li key={index}>
+                    <span className="date-text">🚫 {formatDate(date)}</span>
+                    <button className="remove-btn" onClick={() => handleRemoveDate(date)}>Remove</button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+
+        {/* Location Settings */}
+        <div style={{ flex: 1, minWidth: '300px', backgroundColor: '#f9fafb', padding: '20px', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+          <h3 style={{ marginTop: 0, marginBottom: '20px' }}>📍 Delivery Settings (Map)</h3>
+          
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', fontSize: '14px', marginBottom: '5px', fontWeight: 'bold' }}>Restaurant Latitude</label>
+            <input 
+              type="number" 
+              step="any"
+              value={latitude}
+              onChange={(e) => setLatitude(e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', fontSize: '14px', marginBottom: '5px', fontWeight: 'bold' }}>Restaurant Longitude</label>
+            <input 
+              type="number" 
+              step="any"
+              value={longitude}
+              onChange={(e) => setLongitude(e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', fontSize: '14px', marginBottom: '5px', fontWeight: 'bold' }}>Max Delivery Radius (in km)</label>
+            <input 
+              type="number" 
+              step="any"
+              value={maxDeliveryRadius}
+              onChange={(e) => setMaxDeliveryRadius(e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+            />
+            <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>Orders outside this radius will be blocked.</p>
+          </div>
+        </div>
+
       </div>
 
-      <div className="availability-list">
-        <h3>Currently Closed Dates:</h3>
-        {unavailableDates.length === 0 ? (
-          <p className="no-dates">Your restaurant is fully available everyday! 🎉</p>
-        ) : (
-          <ul>
-            {unavailableDates.sort().map((date, index) => (
-              <li key={index}>
-                <span className="date-text">🚫 {formatDate(date)}</span>
-                <button className="remove-btn" onClick={() => handleRemoveDate(date)}>Remove</button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <button className="save-btn" onClick={saveAvailability}>Save Calendar Settings</button>
+      <button className="save-btn" onClick={saveSettings} style={{ marginTop: '30px' }}>Save All Settings</button>
     </div>
   )
 }
