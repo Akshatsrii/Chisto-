@@ -86,14 +86,8 @@ const Header = () => {
         <div style={{ display: 'flex', gap: '15px' }}>
           <a href="#explore-menu"><button>View Menu</button></a>
           <button 
+            className={`voice-btn ${isListening ? 'listening' : ''}`}
             onClick={handleVoiceOrder}
-            style={{ 
-              background: isListening ? '#ef4444' : '#3b82f6',
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
           >
             {isListening ? "🎙️ Listening..." : "🎤 Voice Order"}
           </button>

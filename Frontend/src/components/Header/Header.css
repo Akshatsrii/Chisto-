@@ -210,6 +210,42 @@
     0 3px 8px rgba(255, 76, 36, 0.25);
 }
 
+/* Voice Order Button - Ghost Style */
+.header-contents button.voice-btn {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-contents button.voice-btn::before {
+  display: none; /* Disable the shine effect for ghost button */
+}
+
+.header-contents button.voice-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
+  color: #ffffff;
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.header-contents button.voice-btn.listening {
+  background: rgba(239, 68, 68, 0.9);
+  border-color: #ef4444;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
 /* Backdrop blur for better text readability */
 .header-contents::before {
   content: "";
