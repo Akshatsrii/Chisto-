@@ -13,7 +13,7 @@ const placeOrder = async (req, res) => {
 
   try {
     const userId = req.userId
-    const { items, amount, address, paymentMethod, isScheduled, scheduledDate, travelDetails, couponCode, discountAmount } = req.body
+    const { items, amount, address, paymentMethod, isScheduled, scheduledDate, travelDetails, couponCode, discountAmount, distance, surgeFee, weatherCondition } = req.body
 
     if (!items || !amount || !address) {
       return res.json({ success: false, message: "Missing order details" })
@@ -45,7 +45,10 @@ const placeOrder = async (req, res) => {
         isScheduled: isScheduled || false,
         scheduledDate: isScheduled ? new Date(scheduledDate) : null,
         travelDetails: isScheduled ? travelDetails : null,
-        status: isScheduled ? "Scheduled (Awaiting Date)" : "Food Processing"
+        distance: distance || 5, // fallback 5km
+        status: isScheduled ? "Scheduled (Awaiting Date)" : "Food Processing",
+        surgeFee: surgeFee || 0,
+        weatherCondition: weatherCondition || "Clear"
       })
 
       await newOrder.save()
@@ -76,7 +79,10 @@ const placeOrder = async (req, res) => {
         status: "Payment Verification Pending",
         isScheduled: isScheduled || false,
         scheduledDate: isScheduled ? new Date(scheduledDate) : null,
-        travelDetails: isScheduled ? travelDetails : null
+        travelDetails: isScheduled ? travelDetails : null,
+        distance: distance || 5, // fallback 5km
+        surgeFee: surgeFee || 0,
+        weatherCondition: weatherCondition || "Clear"
       })
 
       await newOrder.save()
@@ -279,9 +285,27 @@ const acceptOrder = async (req, res) => {
       return res.json({ success: false, message: "Only riders can accept orders" })
     }
 
+    const orderToAccept = await orderModel.findById(orderId)
+    if (!orderToAccept) return res.json({ success: false, message: "Order not found" })
+
+    // Calculate CO2 Stats
+    const vehicleType = rider.vehicleType || "bike"
+    let emissionFactor = 110 // default bike
+    if (vehicleType === "ev") emissionFactor = 0
+    else if (vehicleType === "scooter") emissionFactor = 80
+    
+    const baselineCarEmission = 250 // grams per km
+    const distance = orderToAccept.distance || 5 // fallback 5km
+    
+    const co2Emissions = distance * emissionFactor
+    const co2Saved = distance * (baselineCarEmission - emissionFactor)
+
     const order = await orderModel.findByIdAndUpdate(orderId, {
       riderId: req.userId,
-      riderName: rider.name
+      riderName: rider.name,
+      vehicleType: vehicleType,
+      co2Emissions: co2Emissions,
+      co2Saved: co2Saved
     }, { new: true })
 
     // Broadcast status update

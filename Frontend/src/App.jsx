@@ -1,4 +1,5 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect } from "react"
+import axios from "axios"
 import { Routes, Route } from "react-router-dom"
 
 import Navbar from "./components/Navbar/Navbar"
@@ -14,11 +15,48 @@ import OrderConfirm from "./pages/OrderConfirm/OrderConfirm"
 import Verify from "./pages/Verify/Verify"
 
 import { StoreContext } from "./Context/Storecontext"
-import { ToastContainer } from "react-toastify"
+import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import { getOfflineOrders, clearOfflineOrder } from "./utils/idb"
 
 const App = () => {
-  const { showLogin, setShowLogin } = useContext(StoreContext)
+  const { showLogin, setShowLogin, url, token } = useContext(StoreContext)
+
+  useEffect(() => {
+    const handleOnline = async () => {
+      toast.info("📶 Back online! Syncing pending orders...")
+      const pendingOrders = await getOfflineOrders()
+      
+      if (pendingOrders && pendingOrders.length > 0) {
+        if (!token) {
+           toast.error("Please login to sync your pending offline orders.")
+           return
+        }
+
+        let successCount = 0
+        for (const order of pendingOrders) {
+          try {
+            const res = await axios.post(`${url}/api/order/place`, order, {
+              headers: { token }
+            })
+            if (res.data.success) {
+              await clearOfflineOrder(order.id)
+              successCount++
+            }
+          } catch (e) {
+            console.error("Failed to sync order", e)
+          }
+        }
+        
+        if (successCount > 0) {
+           toast.success(`✅ Successfully synced ${successCount} offline order(s)!`)
+        }
+      }
+    }
+
+    window.addEventListener("online", handleOnline)
+    return () => window.removeEventListener("online", handleOnline)
+  }, [url, token])
 
   return (
     <>

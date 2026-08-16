@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react"
 import axios from "axios"
+import io from "socket.io-client"
 
 export const StoreContext = createContext(null)
 
@@ -19,6 +20,52 @@ const StoreContextProvider = ({ children }) => {
   const [showSearch, setShowSearch] = useState(false)
   const [promoDiscount, setPromoDiscount] = useState(0)
   const [appliedPromo, setAppliedPromo] = useState("")
+
+  // ================= GROUP ORDERING (SOCKET.IO) =================
+  const [socket, setSocket] = useState(null)
+  const [groupRoomId, setGroupRoomId] = useState(null)
+  const [groupMembers, setGroupMembers] = useState({})
+  const [groupPaymentLinks, setGroupPaymentLinks] = useState(null)
+
+  useEffect(() => {
+    const newSocket = io(url)
+    setSocket(newSocket)
+
+    newSocket.on("group_cart_updated", (data) => {
+      // data: { hostId, members: { [userId]: { name, items } } }
+      setGroupMembers(data.members || {})
+    })
+
+    newSocket.on("group_payment_links", (data) => {
+      setGroupPaymentLinks(data.links)
+    })
+
+    return () => newSocket.close()
+  }, [url])
+
+  // Auto-join group if URL has ?group=XYZ
+  useEffect(() => {
+    if (socket && token) {
+      const urlParams = new URLSearchParams(window.location.search)
+      const groupParam = urlParams.get('group')
+      if (groupParam) {
+        setGroupRoomId(groupParam)
+        socket.emit("join_group_cart", { roomId: groupParam, token })
+      }
+    }
+  }, [socket, token])
+
+  // Sync Cart Items to Group when local cart changes
+  useEffect(() => {
+    if (socket && groupRoomId && token) {
+      // transform cartItems into array of objects for backend
+      const itemsArr = food_list
+        .filter(item => cartItems[item._id] > 0)
+        .map(item => ({ ...item, quantity: cartItems[item._id] }))
+      
+      socket.emit("sync_group_items", { roomId: groupRoomId, token, items: itemsArr })
+    }
+  }, [cartItems, groupRoomId, socket, token, food_list])
 
   // ================= FETCH FOOD LIST =================
   const fetchFoodList = async () => {
@@ -176,7 +223,12 @@ const StoreContextProvider = ({ children }) => {
         promoDiscount,
         setPromoDiscount,
         appliedPromo,
-        setAppliedPromo
+        setAppliedPromo,
+        socket,
+        groupRoomId,
+        setGroupRoomId,
+        groupMembers,
+        groupPaymentLinks
       }}
     >
       {children}

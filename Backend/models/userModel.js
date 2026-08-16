@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema({
   },
   restaurantAddress: {
     type: String
+  },
+  vehicleType: {
+    type: String,
+    enum: ["bike", "scooter", "ev"],
+    default: "bike" // Only applicable if role is 'rider'
   }
 })
 

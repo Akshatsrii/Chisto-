@@ -38,15 +38,26 @@ self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return
 
   e.respondWith(
-    fetch(e.request).catch(() => {
-      return caches.match(e.request).then((cachedResponse) => {
-        if (cachedResponse) return cachedResponse
-        // Fallback for HTML page when offline
-        if (e.request.headers.get("accept").includes("text/html")) {
-          return caches.match("/index.html")
+    fetch(e.request)
+      .then((networkResponse) => {
+        // Dynamically cache successful GET requests (excluding chrome-extension, etc)
+        if (networkResponse && networkResponse.status === 200 && e.request.url.startsWith('http')) {
+          const responseToCache = networkResponse.clone()
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(e.request, responseToCache)
+          })
         }
+        return networkResponse
       })
-    })
+      .catch(() => {
+        return caches.match(e.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse
+          // Fallback for HTML page when offline
+          if (e.request.headers.get("accept").includes("text/html")) {
+            return caches.match("/index.html")
+          }
+        })
+      })
   )
 })
 

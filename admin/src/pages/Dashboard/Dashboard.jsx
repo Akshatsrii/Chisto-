@@ -38,9 +38,11 @@ const Dashboard = () => {
     cancellationRate: 0,
     repeatCustomers: 0,
     topFoods: [],
-    categorySales: {}
+    categorySales: {},
+    totalCo2Saved: 0
   })
   const [recentOrders, setRecentOrders] = useState([])
+  const [weatherSurge, setWeatherSurge] = useState({ isRainForecasted: false, surgeFee: 0 })
   const [loading, setLoading] = useState(true)
 
   const fetchDashboardData = async () => {
@@ -80,13 +82,27 @@ const Dashboard = () => {
           })
         })
 
+        const totalCo2Saved = orders.reduce((sum, order) => sum + (order.co2Saved || 0), 0)
+
         const adminRole = localStorage.getItem("admin-role")
-        const currentRestName = localStorage.getItem("admin-restaurantName")
+        const currentRestName = localStorage.getItem("admin-restaurantName") || "Admin"
         const restaurantItems = adminRole === "admin" ? foods : foods.filter(f => f.restaurantName === currentRestName)
+
+        // Fetch weather
+        try {
+          const wRes = await axios.get(`${url}/api/restaurant/availability/${currentRestName}`)
+          if (wRes.data.success && wRes.data.data) {
+             setWeatherSurge({
+               isRainForecasted: wRes.data.data.isRainForecasted,
+               surgeFee: wRes.data.data.surgeFee
+             })
+          }
+        } catch(e) { console.log(e) }
 
         setStats({
           totalRevenue, totalOrders, activeOrders, totalItems: restaurantItems.length,
-          avgOrderValue, cancellationRate, repeatCustomers, topFoods, categorySales: catMap
+          avgOrderValue, cancellationRate, repeatCustomers, topFoods, categorySales: catMap,
+          totalCo2Saved
         })
         setRecentOrders(orders.slice(0, 5))
       }
@@ -128,8 +144,18 @@ const Dashboard = () => {
   return (
     <div className="p-6 md:p-10 w-full bg-gray-50 dark:bg-dark-bg min-h-screen">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back, {restaurantName}!</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back, {restaurantName || "Admin"}!</h1>
         <p className="text-gray-500 dark:text-gray-400">Here's what's happening with your store today.</p>
+        
+        {weatherSurge.isRainForecasted && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3">
+            <div className="p-2 bg-red-100 rounded-full text-red-600">🚨</div>
+            <div>
+              <h4 className="text-red-700 font-bold">Expected Demand Spike (High Alert)</h4>
+              <p className="text-red-600 text-sm">Rain is forecasted in your delivery zone. A dynamic surge fee of ₹{weatherSurge.surgeFee} is active.</p>
+            </div>
+          </div>
+        )}
       </motion.div>
 
       <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -196,6 +222,23 @@ const Dashboard = () => {
       </motion.div>
 
       {/* Complex Bento Layout for Analytics */}
+      <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        
+        {/* City-Wide Sustainability Metrics (Green Score) - Full Width */}
+        <motion.div variants={item} className="lg:col-span-3 bg-gradient-to-br from-emerald-500 to-teal-600 p-6 rounded-3xl border border-emerald-400 shadow-sm text-white flex flex-col md:flex-row items-center justify-between">
+          <div>
+            <h3 className="text-xl font-bold mb-2 flex items-center gap-2">🌿 City-Wide Sustainability Metrics</h3>
+            <p className="text-emerald-100 text-sm max-w-xl">By using EV and scooter riders, our platform tracks and reduces carbon footprint on every delivery. Here is our community impact so far!</p>
+          </div>
+          <div className="mt-4 md:mt-0 text-right bg-white/20 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
+            <p className="text-emerald-50 text-sm font-medium mb-1">Total CO2 Emissions Saved</p>
+            <h2 className="text-4xl font-black">
+              <AnimatedNumber value={stats.totalCo2Saved} suffix=" g" />
+            </h2>
+          </div>
+        </motion.div>
+      </motion.div>
+
       <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Top Selling Dish - Spans 2 Cols */}

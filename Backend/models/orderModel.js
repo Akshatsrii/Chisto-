@@ -48,6 +48,30 @@ const orderSchema = new mongoose.Schema({
   travelDetails: {
     type: Object, // { travelType: "Train" | "Flight", pnrOrFlightNumber: String }
     default: null
+  },
+  distance: {
+    type: Number, // in km
+    default: 0
+  },
+  vehicleType: {
+    type: String,
+    default: "bike"
+  },
+  co2Emissions: {
+    type: Number, // in grams
+    default: 0
+  },
+  co2Saved: {
+    type: Number, // in grams
+    default: 0
+  },
+  weatherCondition: {
+    type: String, // "Clear", "Rain", etc.
+    default: "Clear"
+  },
+  surgeFee: {
+    type: Number,
+    default: 0
   }
 })
 

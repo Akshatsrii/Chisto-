@@ -1,13 +1,19 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer base {
   html, body {
-    @apply m-0 p-0 font-sans text-gray-800 bg-gray-50 transition-colors duration-300;
+    margin: 0;
+    padding: 0;
+    font-family: 'Outfit', sans-serif;
+    color: #1f2937;
+    background-color: #f9fafb;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
   }
   .dark {
-    @apply text-gray-100 bg-dark-bg;
+    color: #f3f4f6;
+    background-color: #0f172a;
   }
 }
 

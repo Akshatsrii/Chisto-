@@ -4,6 +4,8 @@ import "./Placeorder.css"
 import { StoreContext } from "../../Context/Storecontext"
 import { useNavigate } from "react-router-dom"
 import * as turf from "@turf/turf"
+import { saveOrderOffline } from "../../utils/idb"
+import { toast } from "react-toastify"
 
 const PlaceOrder = () => {
 
@@ -16,8 +18,22 @@ const PlaceOrder = () => {
     token,
     url,
     promoDiscount,
-    appliedPromo
+    appliedPromo,
+    groupRoomId,
+    groupPaymentLinks,
+    socket
   } = useContext(StoreContext)
+
+  const [splitType, setSplitType] = useState("Even Split")
+
+  const getUserId = () => {
+    if (!token) return null
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      return payload.id
+    } catch(e) { return null }
+  }
+  const myUserId = getUserId()
 
   // DELIVERY FORM STATE
   const [address, setAddress] = useState({
@@ -52,6 +68,26 @@ const PlaceOrder = () => {
     pnrOrFlightNumber: ""
   })
 
+  // WEATHER SURGE STATE
+  const [weatherCondition, setWeatherCondition] = useState("Clear")
+  const [surgeFee, setSurgeFee] = useState(0)
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      const restaurantNames = [...new Set(orderItems.map(item => item.restaurantName))]
+      if (restaurantNames.length > 0) {
+        try {
+          const res = await axios.post(`${url}/api/restaurant/availability/multiple`, { restaurantNames })
+          if (res.data.success && res.data.weatherInfo) {
+            setWeatherCondition(res.data.weatherInfo.isRainForecasted ? "Rain" : "Clear")
+            setSurgeFee(res.data.weatherInfo.surgeFee || 0)
+          }
+        } catch (err) {}
+      }
+    }
+    fetchWeather()
+  }, [cartItems])
+
   // HANDLE FORM INPUT
   const onChangeHandler = (e) => {
     setAddress({ ...address, [e.target.name]: e.target.value })
@@ -70,7 +106,7 @@ const PlaceOrder = () => {
       image: item.image
     }))
 
-  const deliveryFee = getTotalCartAmount() === 0 ? 0 : 40
+  const deliveryFee = getTotalCartAmount() === 0 ? 0 : (40 + surgeFee)
   const totalAmount = Math.max(getTotalCartAmount() + deliveryFee - promoDiscount, 0)
 
   // ==============================
@@ -166,7 +202,36 @@ const PlaceOrder = () => {
       return
     }
 
+    // 🔴 OFFLINE HANDLING
+    if (!navigator.onLine) {
+      if (paymentMethod !== "COD") {
+        alert("You are offline. Only Cash on Delivery is supported offline.")
+        return
+      }
+      
+      const offlineOrder = {
+        items: orderItems,
+        amount: totalAmount,
+        address: { ...address, lat, lon },
+        paymentMethod: "COD",
+        isScheduled,
+        scheduledDate,
+        travelDetails,
+        couponCode: appliedPromo,
+        discountAmount: promoDiscount,
+        distance: 5, // fallback for offline
+        surgeFee,
+        weatherCondition
+      }
+      
+      await saveOrderOffline(offlineOrder)
+      toast.info("📶 You are offline. Your order is queued and will be placed automatically when internet connects.", { autoClose: 5000 })
+      navigate('/cart')
+      return
+    }
+
     // 🔥 VALIDATE AVAILABILITY & DELIVERY ZONES
+    let orderDistance = 5 // fallback
     const restaurantNames = [...new Set(orderItems.map(item => item.restaurantName))]
     try {
       const settingsRes = await axios.post(`${url}/api/restaurant/availability/multiple`, { restaurantNames })
@@ -191,6 +256,7 @@ const PlaceOrder = () => {
               turf.point([rData.longitude, rData.latitude]),
               { units: 'kilometers' }
             )
+            orderDistance = distance // store for backend
             const maxRadius = rData.maxDeliveryRadius || 5 // default 5km
 
             if (distance > maxRadius) {
@@ -205,7 +271,25 @@ const PlaceOrder = () => {
     }
 
     try {
-      // 🟢 CASH ON DELIVERY
+      // 🟣 GROUP ORDERING CHECKOUT (SOCKET)
+      if (groupRoomId) {
+        if (paymentMethod === "COD") {
+           alert("Group orders must be paid online to support split billing.")
+           return
+        }
+        socket.emit("checkout_group_cart", {
+          roomId: groupRoomId,
+          token,
+          address: { ...address, lat, lon },
+          distance: orderDistance,
+          splitType,
+          surgeFee,
+          weatherCondition
+        })
+        return // Wait for group_payment_links socket event
+      }
+
+      // 🟢 CASH ON DELIVERY (REST API)
       if (paymentMethod === "COD") {
         const response = await axios.post(
           `${url}/api/order/place`,
@@ -218,7 +302,10 @@ const PlaceOrder = () => {
             scheduledDate,
             travelDetails,
             couponCode: appliedPromo,
-            discountAmount: promoDiscount
+            discountAmount: promoDiscount,
+            distance: orderDistance,
+            surgeFee,
+            weatherCondition
           },
           { headers: { token } }
         )
@@ -244,7 +331,10 @@ const PlaceOrder = () => {
             scheduledDate,
             travelDetails,
             couponCode: appliedPromo,
-            discountAmount: promoDiscount
+            discountAmount: promoDiscount,
+            distance: orderDistance,
+            surgeFee,
+            weatherCondition
           },
           { headers: { token } }
         )
@@ -261,6 +351,24 @@ const PlaceOrder = () => {
       console.log(error)
       alert("Something went wrong")
     }
+  }
+
+  // If Group Payment Links are ready
+  if (groupRoomId && groupPaymentLinks && groupPaymentLinks[myUserId]) {
+    return (
+      <div style={{ padding: '50px', textAlign: 'center', background: '#f0fdf4', borderRadius: '12px', border: '1px solid #bbf7d0', margin: '40px auto', maxWidth: '600px' }}>
+        <h2 style={{ color: '#166534', marginBottom: '20px' }}>✅ Group Order Split Ready!</h2>
+        <p style={{ color: '#15803d', fontSize: '16px', marginBottom: '30px' }}>
+          The host has placed the order. Your individual share ({splitType}) has been calculated.
+        </p>
+        <button 
+          onClick={() => window.location.replace(groupPaymentLinks[myUserId])}
+          style={{ padding: '15px 30px', background: '#10b981', color: 'white', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.3)' }}
+        >
+          💳 Pay My Share
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -381,9 +489,17 @@ const PlaceOrder = () => {
           </div>
 
           <div className="cart-total-details">
-            <p>Delivery Fee</p>
+            <p>Delivery Fee {surgeFee > 0 && <span style={{color: '#ef4444', fontSize: '12px', fontWeight: 'bold'}}>(Surge Applied)</span>}</p>
             <p>₹{deliveryFee}</p>
           </div>
+
+          {surgeFee > 0 && (
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '10px', borderRadius: '6px', marginBottom: '10px' }}>
+              <p style={{ margin: 0, fontSize: '12px', color: '#b91c1c' }}>
+                🌧️ <b>Rain Forecasted!</b> A small surge fee of ₹{surgeFee} has been applied due to high demand in your delivery area.
+              </p>
+            </div>
+          )}
 
           {promoDiscount > 0 && (
             <div className="cart-total-details promo-applied">
@@ -421,8 +537,27 @@ const PlaceOrder = () => {
             </label>
           </div>
 
+          {groupRoomId && (
+            <div className="split-bill-section" style={{ background: '#f5f3ff', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #ddd6fe' }}>
+              <h3 style={{ margin: '0 0 10px 0', color: '#5b21b6' }}>👥 Group Order Options</h3>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
+                  <input type="radio" checked={splitType === "Even Split"} onChange={() => setSplitType("Even Split")} />
+                  Even Split (Divide Total)
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
+                  <input type="radio" checked={splitType === "Itemized Split"} onChange={() => setSplitType("Itemized Split")} />
+                  Itemized Split (Pay What You Order)
+                </label>
+              </div>
+              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '10px' }}>
+                When you place the order, everyone in the group will get a personal payment link.
+              </p>
+            </div>
+          )}
+
           <button type="submit" disabled={getTotalCartAmount() === 0}>
-            PLACE ORDER
+            {groupRoomId ? "PROCEED TO SPLIT BILL" : "PLACE ORDER"}
           </button>
         </div>
       </div>

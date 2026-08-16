@@ -14,12 +14,11 @@ const OrderConfirm = () => {
   const [orderStatus, setOrderStatus] = useState("Food Processing")
   const [deliveryProgress, setDeliveryProgress] = useState(0) // 0 to 100%
   const [paymentPaid, setPaymentPaid] = useState(false)
+  const [orderData, setOrderData] = useState(null)
+  const [etaText, setEtaText] = useState("Calculating ETA...")
   
   const mapRef = useRef(null)
   const driverMarkerRef = useRef(null)
-  
-  const restCoords = [26.9124, 75.7873]
-  const deliveryCoords = [26.9215, 75.7985]
   
   // Read orderId from URL search query parameter
   const orderId = new URLSearchParams(window.location.search).get("orderId")
@@ -52,6 +51,7 @@ const OrderConfirm = () => {
           if (currentOrder) {
             setOrderStatus(currentOrder.status)
             setPaymentPaid(currentOrder.payment)
+            setOrderData(currentOrder)
           }
         }
       } catch (err) {
@@ -73,13 +73,32 @@ const OrderConfirm = () => {
     setMapLoaded(true)
   }, [])
 
-  // ================= 3. INITIALIZE MAP & STATIC MARKERS =================
+  // ================= 3. INITIALIZE MAP & DYNAMIC ROUTE =================
   useEffect(() => {
-    if (!mapLoaded) return
+    if (!mapLoaded || !orderData) return
 
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       const L = window.L
       if (!L || mapRef.current) return
+
+      // Dynamic Coordinates
+      let rLat = 28.6139, rLon = 77.2090; // Default
+      try {
+        const rName = orderData.items[0]?.restaurantName
+        if (rName) {
+           const res = await axios.get(`${url}/api/restaurant/availability/${rName}`)
+           if (res.data.success && res.data.data) {
+             rLat = res.data.data.latitude || rLat
+             rLon = res.data.data.longitude || rLon
+           }
+        }
+      } catch(e) { console.error("Error fetching restaurant location", e) }
+
+      const dLat = orderData.address?.lat || rLat + 0.01
+      const dLon = orderData.address?.lon || rLon + 0.01
+
+      const restCoords = [rLat, rLon]
+      const deliveryCoords = [dLat, dLon]
 
       // Initialize Map on order-confirm-map div
       const map = L.map("order-confirm-map").setView(restCoords, 13)
@@ -101,24 +120,39 @@ const OrderConfirm = () => {
 
       // Add pins
       const restMarker = L.marker(restCoords, { icon: createEmojiIcon("🧑‍🍳", "Chisto Kitchen") }).addTo(map)
-        .bindPopup("<b>Chisto Kitchen</b><br>Cooking your hot meal!")
+        .bindPopup(`<b>${orderData.items[0]?.restaurantName || "Kitchen"}</b><br>Cooking your hot meal!`)
         .openPopup()
 
       const userMarker = L.marker(deliveryCoords, { icon: createEmojiIcon("🏠", "Your Address") }).addTo(map)
         .bindPopup("<b>Your Address</b><br>Safe Delivery Spot")
 
-      // Polyline path
-      L.polyline([restCoords, deliveryCoords], {
-        color: '#0c2340',
-        weight: 4,
-        dashArray: '6, 10',
-        opacity: 0.8
-      }).addTo(map)
-
       // Add initial Delivery Boy motorcycle marker at restaurant
       const driverMarker = L.marker(restCoords, { icon: createEmojiIcon("🏍️", "Delivery Boy") }).addTo(map)
         .bindPopup("<b>Chisto Rider</b><br>On the way to pick up food.")
-      driverMarkerRef.current = driverMarker
+      driverMarkerRef.current = { marker: driverMarker, start: restCoords, end: deliveryCoords }
+
+      // ================= OSRM ROUTE OPTIMIZATION =================
+      try {
+        const osrmUrl = `http://router.project-osrm.org/route/v1/driving/${rLon},${rLat};${dLon},${dLat}?overview=full&geometries=geojson`
+        const osrmRes = await axios.get(osrmUrl)
+        if (osrmRes.data && osrmRes.data.routes && osrmRes.data.routes.length > 0) {
+          const route = osrmRes.data.routes[0]
+          
+          L.geoJSON(route.geometry, {
+            style: { color: '#3b82f6', weight: 5, opacity: 0.8 } // Beautiful blue
+          }).addTo(map)
+
+          const durationMins = Math.round(route.duration / 60)
+          setEtaText(`~ ${durationMins} mins away`)
+        } else {
+          L.polyline([restCoords, deliveryCoords], { color: '#0c2340', weight: 4, dashArray: '6, 10', opacity: 0.8 }).addTo(map)
+          setEtaText("ETA Unavailable")
+        }
+      } catch (err) {
+        console.error("OSRM Route Error", err)
+        L.polyline([restCoords, deliveryCoords], { color: '#0c2340', weight: 4, dashArray: '6, 10', opacity: 0.8 }).addTo(map)
+        setEtaText("ETA Unavailable")
+      }
 
       // Zoom to fit markers
       const group = new L.featureGroup([restMarker, userMarker])
@@ -127,7 +161,7 @@ const OrderConfirm = () => {
     }, 200)
 
     return () => clearTimeout(timer)
-  }, [mapLoaded])
+  }, [mapLoaded, orderData])
 
   // ================= 4. DELIVERY BOY MOVEMENT SIMULATION =================
   useEffect(() => {
@@ -157,19 +191,20 @@ const OrderConfirm = () => {
   // ================= 5. DYNAMICALLY UPDATE MARKER COORDINATES =================
   useEffect(() => {
     if (!driverMarkerRef.current) return
-
-    const lat = restCoords[0] + (deliveryCoords[0] - restCoords[0]) * (deliveryProgress / 100)
-    const lng = restCoords[1] + (deliveryCoords[1] - restCoords[1]) * (deliveryProgress / 100)
+    const { marker, start, end } = driverMarkerRef.current
     
-    driverMarkerRef.current.setLatLng([lat, lng])
+    const lat = start[0] + (end[0] - start[0]) * (deliveryProgress / 100)
+    const lng = start[1] + (end[1] - start[1]) * (deliveryProgress / 100)
+    
+    marker.setLatLng([lat, lng])
 
     // Update popup text based on progress
     if (deliveryProgress === 0) {
-      driverMarkerRef.current.setPopupContent("<b>Chisto Rider</b><br>Waiting for preparation to complete at restaurant.")
+      marker.setPopupContent("<b>Chisto Rider</b><br>Waiting for preparation to complete at restaurant.")
     } else if (deliveryProgress > 0 && deliveryProgress < 100) {
-      driverMarkerRef.current.setPopupContent(`<b>Chisto Rider</b><br>Out for delivery: ${Math.round(deliveryProgress)}% arrived.`)
+      marker.setPopupContent(`<b>Chisto Rider</b><br>Out for delivery: ${Math.round(deliveryProgress)}% arrived.`)
     } else {
-      driverMarkerRef.current.setPopupContent("<b>Chisto Rider</b><br>Arrived at your location! 🍕🎉")
+      marker.setPopupContent("<b>Chisto Rider</b><br>Arrived at your location! 🍕🎉")
     }
   }, [deliveryProgress])
 
@@ -237,10 +272,10 @@ const OrderConfirm = () => {
             <span className="order-live-status-pill">{orderStatus}</span>
           </div>
           <div id="order-confirm-map">
-            {!mapLoaded && <p className="loading-map">Initializing live tracking map...</p>}
+            {(!mapLoaded || !orderData) && <p className="loading-map">Initializing live tracking map...</p>}
           </div>
           <div className="driver-eta-text">
-            <span>Rider ETA: <b>{orderStatus === "Delivered" ? "Arrived" : "15-20 Mins"}</b></span>
+            <span>Rider ETA: <b style={{ color: '#f59e0b' }}>{orderStatus === "Delivered" ? "Arrived" : etaText}</b></span>
             <span>Rider Distance: <b>{Math.round(100 - deliveryProgress)}% remaining</b></span>
           </div>
         </div>

@@ -40,7 +40,11 @@ const Cart = () => {
     promoDiscount,
     setPromoDiscount,
     appliedPromo,
-    setAppliedPromo
+    setAppliedPromo,
+    socket,
+    groupRoomId,
+    setGroupRoomId,
+    groupMembers
   } = useContext(StoreContext)
 
   const navigate = useNavigate()
@@ -116,11 +120,76 @@ const Cart = () => {
     }
   }
 
+  const createGroupCart = () => {
+    if (!token) return alert("Please login first to create a group cart")
+    const newRoomId = "GRP-" + Math.random().toString(36).substr(2, 6).toUpperCase()
+    setGroupRoomId(newRoomId)
+    socket.emit("join_group_cart", { roomId: newRoomId, token })
+    // copy to clipboard
+    const link = `${window.location.origin}/cart?group=${newRoomId}`
+    navigator.clipboard.writeText(link)
+    alert("Group Cart created! Link copied to clipboard:\n" + link)
+  }
+
+  const copyLink = () => {
+    const link = `${window.location.origin}/cart?group=${groupRoomId}`
+    navigator.clipboard.writeText(link)
+    alert("Link copied to clipboard!")
+  }
+
   const finalAmount = Math.max(subtotal - promoDiscount, 0)
 
   return (
     <div className="cart">
       <div className="cart-items">
+        {/* GROUP CART SECTION */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2>My Cart</h2>
+          {!groupRoomId && (
+            <button 
+              onClick={createGroupCart}
+              style={{ padding: '10px 15px', background: '#8b5cf6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              👥 Start Group Order
+            </button>
+          )}
+        </div>
+
+        {groupRoomId && (
+          <div className="group-cart-section" style={{ background: '#f0f9ff', padding: '20px', borderRadius: '12px', border: '1px solid #bae6fd', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <h2 style={{ color: '#0369a1', margin: 0 }}>👥 Group Order Active: {groupRoomId}</h2>
+              <button onClick={copyLink} style={{ background: '#0284c7', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>Copy Link</button>
+            </div>
+            <p style={{ fontSize: '14px', color: '#0c4a6e', marginBottom: '15px' }}>
+              Share this link with friends to let them add items: <b>{window.location.origin}/cart?group={groupRoomId}</b>
+            </p>
+            
+            <div className="group-members">
+              {Object.entries(groupMembers).map(([userId, data]) => {
+                const memberTotal = data.items ? data.items.reduce((sum, it) => sum + (it.price * it.quantity), 0) : 0
+                return (
+                  <div key={userId} style={{ marginBottom: '10px', padding: '12px', background: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <strong>{data.name}</strong>
+                      <span style={{ fontWeight: 'bold', color: '#059669' }}>₹{memberTotal}</span>
+                    </div>
+                    <ul style={{ margin: '8px 0 0 20px', fontSize: '14px', color: '#555' }}>
+                      {data.items && data.items.length > 0 ? (
+                        data.items.map((item, idx) => (
+                          <li key={idx}>{item.name} x {item.quantity} (₹{item.price * item.quantity})</li>
+                        ))
+                      ) : (
+                        <li>No items added yet</li>
+                      )}
+                    </ul>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         {/* HEADER */}
         <div className="cart-items-title">
           <p>Image</p>
