@@ -439,19 +439,21 @@
 
 /* Input Area styling */
 .chatbot-input-area {
-  padding: 15px 20px;
+  padding: 12px 15px;
   background: white;
   border-top: 1px solid #eee;
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
 }
 
 .chatbot-input-area input {
   flex: 1;
+  min-width: 0; /* Allows the input to shrink smaller than its placeholder */
   border: 1px solid #e0e0e0;
   border-radius: 25px;
-  padding: 10px 18px;
-  font-size: 14px;
+  padding: 10px 14px;
+  font-size: 13px;
   outline: none;
   transition: border-color 0.2s;
 }
@@ -460,14 +462,15 @@
   border-color: #0c2340;
 }
 
-.chatbot-input-area button {
+.chatbot-input-area button[type="submit"] {
+  flex-shrink: 0;
   background: linear-gradient(135deg, #0c2340, #1d3b68);
   color: white;
   border: none;
   border-radius: 25px;
-  padding: 10px 20px;
+  padding: 10px 16px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.2s;
 }
@@ -522,15 +525,17 @@
 .chatbot-mood-chips {
   display: flex;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 10px 15px;
   background: #fcfcfe;
   overflow-x: auto;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .chatbot-mood-chips::-webkit-scrollbar {
-  height: 0px;
+  display: none;
 }
 
 .mood-chip {
@@ -555,11 +560,12 @@
 }
 
 .mic-btn {
+  flex-shrink: 0;
   background: #f0f4f8;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -587,11 +593,12 @@
 
 /* AI Vision Image & Food Card Styling */
 .camera-btn {
+  flex-shrink: 0;
   background: #f0f4f8;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: flex;
   justify-content: center;
   align-items: center;
