@@ -220,6 +220,10 @@ io.on("connection", (socket) => {
 initCronJobs(io)
 
 // Server Start
-server.listen(port, () => {
-  console.log(`Server Started on http://localhost:${port}`)
-})
+if (process.env.NODE_ENV !== "test") {
+  server.listen(port, () => {
+    console.log(`Server Started on http://localhost:${port}`)
+  })
+}
+
+module.exports = app
