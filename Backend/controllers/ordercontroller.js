@@ -6,11 +6,15 @@ const webpush = require("web-push")
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
-webpush.setVapidDetails(
-  'mailto:contact@chisto.com',
-  process.env.VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
-)
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    'mailto:contact@chisto.com',
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  )
+} else {
+  console.warn("VAPID keys not found. Push notifications will be disabled.")
+}
 
 // Helper to send push notification
 const sendOrderPushNotification = async (userId, title, body) => {
