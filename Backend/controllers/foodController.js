@@ -24,6 +24,7 @@ const addFood = async (req, res) => {
       description: req.body.description,
       price: req.body.price,
       category: req.body.category,
+      dietaryPreference: req.body.dietaryPreference || "Unspecified",
       image: req.file.filename,
       restaurantId: user._id,
       restaurantName: user.restaurantName || user.name
@@ -142,4 +143,35 @@ const addReview = async (req, res) => {
   }
 }
 
-module.exports = { addFood, listFood, removeFood, addReview }
+// 🔄 UPDATE STOCK (Phase 15d)
+const updateStock = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { inStock } = req.body
+
+    const food = await foodModel.findById(id)
+    if (!food) {
+      return res.status(404).json({ success: false, message: "Food not found" })
+    }
+
+    const user = await userModel.findById(req.userId)
+    if (!user || (user.role !== "admin" && String(food.restaurantId) !== String(user._id))) {
+      return res.status(403).json({ success: false, message: "Unauthorized" })
+    }
+
+    food.inStock = inStock
+    await food.save()
+
+    // Emit Socket.IO event for real-time frontend update
+    const io = req.app.get("io")
+    if (io) {
+      io.emit("food_stock_updated", { foodId: id, inStock })
+    }
+
+    res.status(200).json({ success: true, message: "Stock updated successfully", data: food })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+}
+
+module.exports = { addFood, listFood, removeFood, addReview, updateStock }

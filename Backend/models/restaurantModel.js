@@ -22,6 +22,11 @@ const restaurantSchema = new mongoose.Schema({
   maxDeliveryRadius: {
     type: Number,
     default: 5 // Default 5 km
+  },
+  kitchenLoad: {
+    type: String,
+    enum: ["Normal", "Busy", "Overwhelmed"],
+    default: "Normal"
   }
 })
 

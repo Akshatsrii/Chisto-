@@ -99,10 +99,22 @@ const Dashboard = () => {
           }
         } catch(e) { console.log(e) }
 
+        // Fetch Referral Analytics if admin
+        let refAnalytics = null
+        if (adminRole === 'admin') {
+          try {
+            const rRes = await axios.get(`${url}/api/user/referral-analytics`, { headers: { token } })
+            if (rRes.data.success) {
+              refAnalytics = rRes.data
+            }
+          } catch(e) { console.log(e) }
+        }
+
         setStats({
           totalRevenue, totalOrders, activeOrders, totalItems: restaurantItems.length,
           avgOrderValue, cancellationRate, repeatCustomers, topFoods, categorySales: catMap,
-          totalCo2Saved
+          totalCo2Saved,
+          referralData: refAnalytics
         })
         setRecentOrders(orders.slice(0, 5))
       }
@@ -238,6 +250,42 @@ const Dashboard = () => {
           </div>
         </motion.div>
       </motion.div>
+
+      {/* REFERRAL ANALYTICS */}
+      {stats.referralData && (
+        <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 mb-8">
+          <motion.div variants={item} className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-3xl text-white shadow-sm flex flex-col md:flex-row items-center justify-between">
+            <div>
+              <h3 className="text-xl font-bold mb-2">🚀 Growth & Referral Analytics</h3>
+              <p className="text-indigo-100 text-sm">Viral Coefficient tracks how many new users are brought in by existing users.</p>
+              <div className="flex gap-6 mt-4">
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-indigo-200">Viral Coefficient</p>
+                  <p className="text-2xl font-black">{stats.referralData.viralCoefficient}x</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-indigo-200">Referred Users</p>
+                  <p className="text-2xl font-black">{stats.referralData.totalReferred}</p>
+                </div>
+              </div>
+            </div>
+            
+            {stats.referralData.topReferrers?.length > 0 && (
+              <div className="mt-6 md:mt-0 bg-white/10 p-4 rounded-2xl backdrop-blur-sm w-full md:w-auto">
+                <p className="text-sm font-bold mb-2 text-indigo-50">Top Referrers</p>
+                <div className="space-y-2">
+                  {stats.referralData.topReferrers.map((ref, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-sm border-b border-white/10 pb-1">
+                      <span>{ref.name} ({ref.code})</span>
+                      <span className="font-bold">{ref.referrals} referred</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+      )}
 
       <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         

@@ -2,7 +2,7 @@ import React, { useContext } from "react"
 import "./FoodItem.css"
 import { StoreContext } from "../../Context/Storecontext"
 
-const FoodItem = ({ _id, name, price, description, image, rating = 4.5, restaurantName = "Chisto Kitchen", onReviewClick }) => {
+const FoodItem = ({ _id, name, price, description, image, rating = 4.5, restaurantName = "Chisto Kitchen", onReviewClick, inStock = true, dietaryPreference = "Unspecified" }) => {
 
   const { cartItems, addToCart, removeFromCart, url } =
     useContext(StoreContext)
@@ -30,8 +30,17 @@ const FoodItem = ({ _id, name, price, description, image, rating = 4.5, restaura
     return stars
   }
 
+  const getDietaryTag = (pref) => {
+    switch (pref) {
+      case 'Veg': return <span className="diet-tag veg">🟢 Veg</span>
+      case 'Non-Veg': return <span className="diet-tag non-veg">🔴 Non-Veg</span>
+      case 'Vegan': return <span className="diet-tag vegan">🌱 Vegan</span>
+      default: return null
+    }
+  }
+
   return (
-    <div className="food-item">
+    <div className={`food-item ${!inStock ? 'sold-out' : ''}`}>
       <div className="food-item-img-container">
 
         {/* ✅ FIXED IMAGE */}
@@ -41,7 +50,9 @@ const FoodItem = ({ _id, name, price, description, image, rating = 4.5, restaura
           alt={name}
         />
 
-        {itemCount === 0 ? (
+        {!inStock && <div className="sold-out-overlay">Sold Out</div>}
+
+        {inStock && (itemCount === 0 ? (
           <img
             className="add"
             onClick={() => addToCart(_id)}
@@ -62,12 +73,12 @@ const FoodItem = ({ _id, name, price, description, image, rating = 4.5, restaura
               alt="Add"
             />
           </div>
-        )}
+        ))}
       </div>
 
       <div className="food-item-info">
         <div className="food-item-name-rating">
-          <p>{name}</p>
+          <p>{name} {getDietaryTag(dietaryPreference)}</p>
           <div className="rating-stars" onClick={onReviewClick} title="Click to view reviews" style={{ cursor: 'pointer' }}>
             {renderStars(rating)}
             <span className="rating-number">{rating}</span>

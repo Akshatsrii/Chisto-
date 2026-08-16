@@ -21,6 +21,15 @@ const foodSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  dietaryPreference: {
+    type: String,
+    enum: ["Veg", "Non-Veg", "Vegan", "Unspecified"],
+    default: "Unspecified"
+  },
+  inStock: {
+    type: Boolean,
+    default: true
+  },
   restaurantId: {
     type: String,
     default: "admin"

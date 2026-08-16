@@ -52,6 +52,14 @@ const LoginPopup = ({ setShowLogin }) => {
       if (receivedToken) {
         // Store token in localStorage first
         localStorage.setItem("token", receivedToken)
+
+        // Store user details
+        if (response.data.user) {
+          localStorage.setItem("isPrimeMember", response.data.user.isPrimeMember ? "true" : "false")
+          if (response.data.user.referralCode) {
+            localStorage.setItem("referralCode", response.data.user.referralCode)
+          }
+        }
         
         // Update context
         setToken(receivedToken)
@@ -119,6 +127,13 @@ const LoginPopup = ({ setShowLogin }) => {
                 value={data.phone}
                 onChange={onChangeHandler}
                 required
+              />
+              <input
+                type="text"
+                name="referralCode"
+                placeholder="Referral Code (Optional)"
+                value={data.referralCode || ""}
+                onChange={onChangeHandler}
               />
             </>
           )}

@@ -63,4 +63,10 @@ userRouter.post("/register", registerUser)
  */
 userRouter.post("/login", authLimiter, loginUser)
 
+const authMiddleware = require("../middleware/auth")
+userRouter.post("/prime/subscribe", authMiddleware, require("../controllers/userController").subscribePrime)
+userRouter.post("/prime/verify", authMiddleware, require("../controllers/userController").verifyPrimeSubscription)
+userRouter.get("/referral-analytics", authMiddleware, require("../controllers/userController").getReferralAnalytics)
+userRouter.post("/save-push-subscription", authMiddleware, require("../controllers/userController").savePushSubscription)
+
 module.exports = userRouter

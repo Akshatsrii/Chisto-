@@ -10,10 +10,11 @@ import Chatbot from "./components/Chatbot/Chatbot"
 import Home from "./pages/Home/Home"
 import Cart from "./pages/Cart/Cart"
 import PlaceOrder from "./pages/Placeorder/Placeorder"
-import MyOrders from "./pages/MyOrders/MyOrders"   // ✅ REQUIRED IMPORT
+import MyOrders from "./pages/MyOrders/MyOrders"
 import Restaurant from "./pages/Restaurant/Restaurant"
 import OrderConfirm from "./pages/OrderConfirm/OrderConfirm"
 import Verify from "./pages/Verify/Verify"
+import Profile from "./pages/Profile/Profile"
 
 import { StoreContext } from "./Context/Storecontext"
 import { ToastContainer, toast } from "react-toastify"
@@ -71,7 +72,8 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order" element={<PlaceOrder />} />
-          <Route path="/myorders" element={<MyOrders />} /> {/* ✅ */}
+          <Route path="/myorders" element={<MyOrders />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/restaurant/:id" element={<Restaurant />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/order-confirm" element={<OrderConfirm />} />

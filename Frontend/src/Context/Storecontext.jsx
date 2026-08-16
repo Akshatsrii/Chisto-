@@ -41,6 +41,20 @@ const StoreContextProvider = ({ children }) => {
       setGroupPaymentLinks(data.links)
     })
 
+    // Phase 15d: Real-time stock update
+    newSocket.on("food_stock_updated", (data) => {
+      setFoodList(prevList => prevList.map(food => 
+        food._id === data.foodId ? { ...food, inStock: data.inStock } : food
+      ))
+    })
+
+    // Phase 16c: Real-time kitchen load update
+    newSocket.on("kitchen_load_updated", (data) => {
+      // Dispatch a custom event to notify components since kitchen load is fetched per restaurant
+      const event = new CustomEvent('kitchenLoadChanged', { detail: data });
+      window.dispatchEvent(event);
+    })
+
     return () => newSocket.close()
   }, [url])
 
@@ -183,11 +197,49 @@ const StoreContextProvider = ({ children }) => {
     if (token) {
       fetchCartData()
       localStorage.setItem("token", token)
+      subscribeToPush()
     } else {
       localStorage.removeItem("token")
       setCartItems({})
     }
   }, [token])
+
+  // ================= PUSH NOTIFICATIONS =================
+  const urlBase64ToUint8Array = (base64String) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
+  
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+  
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  const subscribeToPush = async () => {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      try {
+        const registration = await navigator.serviceWorker.ready
+        const VAPID_PUBLIC_KEY = "BIURPnmbjLfkwaqsbZlU6zBsnNJg28Pe1sSJCUWJKP0m9CX8fdkUp0gVJr5uCcZjXrw-Nd2AkBknWY6cP1OWqX8"
+        
+        let subscription = await registration.pushManager.getSubscription()
+        if (!subscription) {
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+          })
+        }
+        
+        await axios.post(`${url}/api/user/save-push-subscription`, { subscription }, { headers: { token } })
+      } catch (err) {
+        console.error("Failed to subscribe to push notifications", err)
+      }
+    }
+  }
 
   const queryChatbot = async (message, chatHistory) => {
     try {

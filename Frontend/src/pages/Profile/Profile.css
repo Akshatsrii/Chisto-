@@ -1,0 +1,86 @@
+.profile-page {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.profile-page h1 {
+  text-align: center;
+  color: #0c2340;
+  margin-bottom: 30px;
+}
+
+.profile-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0e0e0;
+}
+
+.profile-card h2 {
+  margin-top: 0;
+  color: #1a1a1a;
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+.prime-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-left: 4px solid #ffc107;
+}
+
+.active-status {
+  color: #2e7d32;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.subscribe-btn {
+  background: #ffc107;
+  color: #0c2340;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.2s;
+}
+
+.subscribe-btn:hover {
+  background: #ffb300;
+}
+
+.referral-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  align-items: center;
+}
+
+.referral-box .code {
+  background: #f1f3f5;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 18px;
+  letter-spacing: 2px;
+  border: 1px dashed #adb5bd;
+}
+
+.referral-box button {
+  background: #0c2340;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.referral-box button:hover {
+  background: #1d3b68;
+}

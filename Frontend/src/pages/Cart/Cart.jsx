@@ -271,11 +271,26 @@ const Cart = () => {
           </div>
         </div>
 
+        {/* PRIME UPSELL BANNER */}
+        <div className="prime-banner" style={{ marginTop: '20px', padding: '15px', background: 'linear-gradient(135deg, #0c2340 0%, #1d3b68 100%)', color: 'white', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '18px' }}>👑 Chisto Prime</h3>
+            <p style={{ margin: '5px 0 0', fontSize: '14px', color: '#e0e0e0' }}>Get free delivery on all orders and priority support!</p>
+          </div>
+          <button 
+            onClick={() => navigate('/profile')} 
+            style={{ padding: '8px 16px', background: '#ffc107', color: '#0c2340', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            Learn More
+          </button>
+        </div>
+
         {/* TOTALS */}
         <div className="cart-summary" style={{ marginTop: '30px' }}>
           <p>Subtotal: <span>₹{subtotal}</span></p>
+          <p>Delivery Fee: <span>{/* Delivery logic will be handled at Placeorder, but we can show it here if we want */} Calculated at checkout</span></p>
           <p>Discount: <span style={{ color: 'green' }}>-₹{promoDiscount}</span></p>
-          <p className="final-total">Total Payable: <span>₹{finalAmount}</span></p>
+          <p className="final-total">Total Payable (excl. delivery): <span>₹{finalAmount}</span></p>
         </div>
 
         {/* PROCEED TO CHECKOUT */}

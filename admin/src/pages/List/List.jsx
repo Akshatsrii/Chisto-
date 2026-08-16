@@ -49,6 +49,27 @@ const List = () => {
     }
   }
 
+  // 🔹 TOGGLE STOCK
+  const toggleStock = async (id, currentStock) => {
+    try {
+      const token = localStorage.getItem("admin-token")
+      const response = await axios.post(
+        `${url}/api/food/update-stock/${id}`,
+        { inStock: !currentStock },
+        { headers: { token } }
+      )
+      if (response.data.success) {
+        toast.success(response.data.message)
+        fetchList()
+      } else {
+        toast.error(response.data.message || "Error updating stock")
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error("Server Error")
+    }
+  }
+
   useEffect(() => {
     fetchList()
   }, [])
@@ -64,6 +85,7 @@ const List = () => {
           <b>Name</b>
           <b>Category</b>
           <b>Price</b>
+          <b>Stock</b>
           <b>Action</b>
         </div>
 
@@ -74,6 +96,19 @@ const List = () => {
             <p>{item.name}</p>
             <p>{item.category}</p>
             <p>${item.price}</p>
+            <div className="stock-toggle">
+              <label className="switch">
+                <input 
+                  type="checkbox" 
+                  checked={item.inStock !== false} 
+                  onChange={() => toggleStock(item._id, item.inStock !== false)}
+                />
+                <span className="slider round"></span>
+              </label>
+              <span style={{ fontSize: '12px', marginLeft: '5px' }}>
+                {item.inStock !== false ? "In Stock" : "Sold Out"}
+              </span>
+            </div>
             <p
               className="cursor"
               onClick={() => removeFood(item._id)}

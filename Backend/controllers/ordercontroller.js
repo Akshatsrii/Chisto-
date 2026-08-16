@@ -2,8 +2,37 @@ const orderModel = require("../models/orderModel")
 const userModel = require("../models/userModel")
 const couponModel = require("../models/couponModel")
 const Stripe = require("stripe")
+const webpush = require("web-push")
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+
+webpush.setVapidDetails(
+  'mailto:contact@chisto.com',
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
+)
+
+// Helper to send push notification
+const sendOrderPushNotification = async (userId, title, body) => {
+  try {
+    const user = await userModel.findById(userId)
+    if (user && user.pushSubscriptions && user.pushSubscriptions.length > 0) {
+      const payload = JSON.stringify({ title, body })
+      
+      const promises = user.pushSubscriptions.map(sub => 
+        webpush.sendNotification(sub, payload).catch(err => {
+          if (err.statusCode === 404 || err.statusCode === 410) {
+            console.log('Subscription has expired or is no longer valid: ', err)
+          }
+        })
+      )
+      await Promise.all(promises)
+    }
+  } catch (error) {
+    console.error("Error sending push notification", error)
+  }
+}
+
 
 // ==============================
 // PLACE ORDER (COD + STRIPE)
@@ -17,6 +46,14 @@ const placeOrder = async (req, res) => {
 
     if (!items || !amount || !address) {
       return res.json({ success: false, message: "Missing order details" })
+    }
+
+    const user = await userModel.findById(userId)
+
+    // Delivery Fee Logic (Waived for Prime members)
+    let deliveryFee = 40
+    if (user && user.isPrimeMember) {
+      deliveryFee = 0
     }
 
     // Process coupon stats if a coupon was used
@@ -39,7 +76,7 @@ const placeOrder = async (req, res) => {
       const newOrder = new orderModel({
         userId,
         items,
-        amount,
+        amount, // This amount from frontend already includes the delivery fee logic if it was shown correctly, but we'll accept it as is.
         address,
         payment: false,
         isScheduled: isScheduled || false,
@@ -99,16 +136,18 @@ const placeOrder = async (req, res) => {
       }))
 
       // delivery charges
-      line_items.push({
-        price_data: {
-          currency: "inr",
-          product_data: {
-            name: "Delivery Charges"
+      if (deliveryFee > 0) {
+        line_items.push({
+          price_data: {
+            currency: "inr",
+            product_data: {
+              name: "Delivery Charges"
+            },
+            unit_amount: deliveryFee * 100
           },
-          unit_amount: 40 * 100
-        },
-        quantity: 1
-      })
+          quantity: 1
+        })
+      }
 
       const session = await stripe.checkout.sessions.create({
         line_items,
@@ -222,9 +261,10 @@ const updateStatus = async (req, res) => {
       return res.status(403).json({ success: false, message: "Unauthorized access" })
     }
 
-    await orderModel.findByIdAndUpdate(
+    const order = await orderModel.findByIdAndUpdate(
       orderId,
-      { status }
+      { status },
+      { new: true }
     )
 
     // Broadcast the updated status to the client in real-time
@@ -232,6 +272,11 @@ const updateStatus = async (req, res) => {
     if (io) {
       io.to(orderId).emit("order_status_update", { orderId, status })
       console.log(`Socket Broadcast: Order ${orderId} status changed to: ${status}`)
+    }
+
+    // Send push notification
+    if (order) {
+      await sendOrderPushNotification(order.userId, "Order Update 🍔", `Your order status is now: ${status}`)
     }
 
     res.json({
@@ -343,6 +388,9 @@ const updateRiderStatus = async (req, res) => {
     if (io) {
       io.to(orderId).emit("order_status_update", { orderId, status })
     }
+
+    // Send push notification
+    await sendOrderPushNotification(order.userId, "Delivery Update 🛵", `Your order status is now: ${status}`)
 
     res.json({ success: true, message: `Status updated to ${status}` })
   } catch (error) {

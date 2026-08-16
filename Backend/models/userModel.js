@@ -23,10 +23,8 @@ const userSchema = new mongoose.Schema({
     default: "customer",
     enum: ["customer", "restaurant", "admin", "rider"]
   },
-  loyaltyPoints: {
-    type: Number,
-    default: 0
-  },
+  loyaltyPoints: { type: Number, default: 0 },
+  pushSubscriptions: { type: Array, default: [] },
   restaurantName: {
     type: String
   },
@@ -37,6 +35,29 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["bike", "scooter", "ev"],
     default: "bike" // Only applicable if role is 'rider'
+  },
+  kitchenLoad: {
+    type: String,
+    enum: ["Normal", "Busy", "Overwhelmed"],
+    default: "Normal" // Only applicable if role is 'restaurant'
+  },
+  isPrimeMember: {
+    type: Boolean,
+    default: false
+  },
+  primeExpiryDate: {
+    type: Date
+  },
+  stripeCustomerId: {
+    type: String
+  },
+  referralCode: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  referredBy: {
+    type: String
   }
 })
 

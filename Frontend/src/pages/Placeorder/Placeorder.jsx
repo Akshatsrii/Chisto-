@@ -106,7 +106,8 @@ const PlaceOrder = () => {
       image: item.image
     }))
 
-  const deliveryFee = getTotalCartAmount() === 0 ? 0 : (40 + surgeFee)
+  const isPrimeMember = localStorage.getItem("isPrimeMember") === 'true'
+  const deliveryFee = getTotalCartAmount() === 0 ? 0 : (isPrimeMember ? surgeFee : (40 + surgeFee))
   const totalAmount = Math.max(getTotalCartAmount() + deliveryFee - promoDiscount, 0)
 
   // ==============================

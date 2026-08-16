@@ -31,7 +31,8 @@
     "stripe": "^20.1.0",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
-    "validator": "^13.15.26"
+    "validator": "^13.15.26",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "jest": "^30.4.2",

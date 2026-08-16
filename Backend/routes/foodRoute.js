@@ -1,6 +1,6 @@
 const express = require("express")
 const multer = require("multer")
-const { addFood, listFood, removeFood, addReview } = require("../controllers/foodController")
+const { addFood, listFood, removeFood, addReview, updateStock } = require("../controllers/foodController")
 const authMiddleware = require("../middleware/auth")
 
 const foodRouter = express.Router()
@@ -33,6 +33,9 @@ foodRouter.get("/list", listFood)
 
 // ❌ REMOVE
 foodRouter.delete("/remove/:id", authMiddleware, removeFood)
+
+// 🔄 UPDATE STOCK
+foodRouter.post("/update-stock/:id", authMiddleware, updateStock)
 
 // ⭐ REVIEW
 foodRouter.post("/review/:id", authMiddleware, addReview)

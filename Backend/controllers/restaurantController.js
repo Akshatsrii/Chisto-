@@ -68,7 +68,7 @@ const getMultipleAvailability = async (req, res) => {
 // Update availability and settings (Admin only)
 const updateAvailability = async (req, res) => {
   try {
-    const { restaurantName, unavailableDates, latitude, longitude, maxDeliveryRadius } = req.body
+    const { restaurantName, unavailableDates, latitude, longitude, maxDeliveryRadius, kitchenLoad } = req.body
     
     let restaurant = await restaurantModel.findOne({ restaurantName })
     
@@ -77,6 +77,7 @@ const updateAvailability = async (req, res) => {
       if (latitude !== undefined) restaurant.latitude = latitude
       if (longitude !== undefined) restaurant.longitude = longitude
       if (maxDeliveryRadius !== undefined) restaurant.maxDeliveryRadius = maxDeliveryRadius
+      if (kitchenLoad !== undefined) restaurant.kitchenLoad = kitchenLoad
       await restaurant.save()
     } else {
       restaurant = new restaurantModel({
@@ -84,9 +85,18 @@ const updateAvailability = async (req, res) => {
         unavailableDates: unavailableDates || [],
         latitude: latitude || 28.6139,
         longitude: longitude || 77.2090,
-        maxDeliveryRadius: maxDeliveryRadius || 5
+        maxDeliveryRadius: maxDeliveryRadius || 5,
+        kitchenLoad: kitchenLoad || "Normal"
       })
       await restaurant.save()
+    }
+    
+    // Broadcast kitchen load to connected clients via Socket.IO
+    if (kitchenLoad !== undefined) {
+      const io = req.app.get("io")
+      if (io) {
+        io.emit("kitchen_load_updated", { restaurantName, kitchenLoad })
+      }
     }
     
     res.json({ success: true, message: "Restaurant settings updated successfully" })
