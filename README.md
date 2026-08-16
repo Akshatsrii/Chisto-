@@ -35,11 +35,14 @@
 - 📏 **OSRM Distance Routing**: Calculates the exact road distance from the restaurant to the delivery location to generate accurate dynamic delivery fees.
 - 🌧️ **Dynamic Weather & Surge Pricing**: Automatically checks the current weather (using a simulated API) and applies a "Rain Surge Fee" if the conditions are bad.
 - 📱 **Progressive Web App (PWA) & Offline Mode**: Install Chisto as a native app on your phone. Even if your internet goes down, you can browse cached pages and place orders offline (they sync automatically when you reconnect!).
-- 🏪 **Single-Restaurant Enforcement**: Mimics real-world logic—users can only add items from one restaurant at a time. The platform features dedicated pages for each of our 50 partner restaurants.
+- 🛒 **Multi-Restaurant Cart**: Users can checkout items from multiple restaurants in a single unified cart! The backend automatically splits this into individual sub-orders for each restaurant, splitting fees proportionally, while the customer tracks them simultaneously on a single live-tracking page.
+- 🌶️ **Dietary & Allergen Filtering**: Users can identify Veg, Vegan, Jain, or Gluten-Free dishes at a glance via visual badges. Allergy warnings (Nuts, Dairy, Soy) are managed directly by restaurants in the admin panel.
+- 🌐 **Multilingual Support (i18n)**: Instantly toggle the UI between English and Hindi using `react-i18next`.
 
-### 🛡️ **Safety & Sustainability**
+### 🛡️ **Safety, Sustainability & Retention**
 - 📹 **WebRTC Secure Delivery Verification**: Customers and riders can initiate a secure, peer-to-peer live video call to verify high-value deliveries in real time!
 - 🍃 **Green Delivery Score**: Calculates and awards "Green Points" for eco-friendly deliveries (e.g., short distances, bicycle riders), gamifying sustainability.
+- 🔥 **Gamified Streaks**: Customers earn streak points for ordering consistently, with loyalty point bonuses awarded at key milestones (like a 5-week streak) to drive customer retention.
 
 ### 🛠️ **Admin & Partner Management**
 - 🍱 **Bento-Grid Admin Dashboard**: A beautiful, modern, Tailwind-powered Bento UI dashboard for the Admin panel with interactive charts (Recharts).
