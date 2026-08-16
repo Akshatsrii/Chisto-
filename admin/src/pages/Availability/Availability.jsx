@@ -4,7 +4,7 @@ import { toast } from 'react-toastify'
 import './Availability.css'
 
 const Availability = () => {
-  const url = "https://food-ordering-6lji.onrender.com"
+  const url = "http://localhost:4000"
   const restaurantName = localStorage.getItem("admin-restaurantName")
   const [unavailableDates, setUnavailableDates] = useState([])
   const [newDate, setNewDate] = useState("")
@@ -112,3 +112,4 @@ const Availability = () => {
 }
 
 export default Availability
+

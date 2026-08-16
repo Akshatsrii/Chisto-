@@ -5,7 +5,7 @@ import "./Orders.css"
 
 const Orders = () => {
   const [orders, setOrders] = useState([])
-  const url = "https://food-ordering-6lji.onrender.com"
+  const url = "http://localhost:4000"
   const token = localStorage.getItem("admin-token")
 
   const fetchOrders = async () => {
@@ -164,3 +164,4 @@ const Orders = () => {
 }
 
 export default Orders
+

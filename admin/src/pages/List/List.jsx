@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 
 const List = () => {
 
-  const url = "https://food-ordering-6lji.onrender.com"
+  const url = "http://localhost:4000"
   const [list, setList] = useState([])
 
   // 🔹 FETCH LIST
@@ -88,3 +88,4 @@ const List = () => {
 }
 
 export default List
+

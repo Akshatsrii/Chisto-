@@ -12,6 +12,7 @@ import Auth from './pages/Auth/Auth'
 import RiderDeliveries from './pages/RiderDeliveries/RiderDeliveries'
 import RiderEarnings from './pages/RiderEarnings/RiderEarnings'
 import Availability from './pages/Availability/Availability'
+import CommandPalette from './components/CommandPalette/CommandPalette'
 
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -20,6 +21,7 @@ const App = () => {
   const [token, setToken] = useState(localStorage.getItem("admin-token") || "")
   const [role, setRole] = useState(localStorage.getItem("admin-role") || "")
   const [restaurantName, setRestaurantName] = useState(localStorage.getItem("admin-restaurantName") || "")
+  const [cmdkOpen, setCmdkOpen] = useState(false)
 
   const handleLoginSuccess = (newToken, newRole, newRestName) => {
     setToken(newToken)
@@ -40,36 +42,40 @@ const App = () => {
 
   if (!token) {
     return (
-      <div>
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg transition-colors duration-300">
         <ToastContainer position="top-right" autoClose={3000} />
-        <Navbar />
-        <hr />
+        <Navbar setCmdkOpen={setCmdkOpen} />
+        <hr className="border-gray-200 dark:border-dark-border" />
         <Auth onLoginSuccess={handleLoginSuccess} />
       </div>
     )
   }
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg text-gray-800 dark:text-gray-100 transition-colors duration-300">
       <ToastContainer position="top-right" autoClose={3000} />
+      
+      <CommandPalette open={cmdkOpen} setOpen={setCmdkOpen} />
 
-      <Navbar />
-      <hr />
+      <Navbar setCmdkOpen={setCmdkOpen} />
+      <hr className="border-gray-200 dark:border-dark-border m-0" />
 
-      <div className="app-content">
+      <div className="app-content flex">
         <Sidebar />
 
-        <Routes>
-          <Route path="/" element={<Navigate to={role === "rider" ? "/rider-deliveries" : "/dashboard"} />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/add" element={<Add />} />
-          <Route path="/list" element={<List />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/availability" element={<Availability />} />
-          <Route path="/rider-deliveries" element={<RiderDeliveries />} />
-          <Route path="/rider-earnings" element={<RiderEarnings />} />
-          <Route path="*" element={<Navigate to={role === "rider" ? "/rider-deliveries" : "/dashboard"} />} />
-        </Routes>
+        <div className="flex-1 overflow-auto">
+          <Routes>
+            <Route path="/" element={<Navigate to={role === "rider" ? "/rider-deliveries" : "/dashboard"} />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/add" element={<Add />} />
+            <Route path="/list" element={<List />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/availability" element={<Availability />} />
+            <Route path="/rider-deliveries" element={<RiderDeliveries />} />
+            <Route path="/rider-earnings" element={<RiderEarnings />} />
+            <Route path="*" element={<Navigate to={role === "rider" ? "/rider-deliveries" : "/dashboard"} />} />
+          </Routes>
+        </div>
 
       </div>
     </div>

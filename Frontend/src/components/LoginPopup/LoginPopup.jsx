@@ -58,9 +58,6 @@ const LoginPopup = ({ setShowLogin }) => {
         
         // Close popup
         setShowLogin(false)
-        
-        // Reload page to ensure navbar and all components update
-        window.location.reload()
       } else {
         // Show what was actually received
         console.error("No token found in response:", response.data)

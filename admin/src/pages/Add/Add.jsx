@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 
 const Add = () => {
 
-  const url = "https://food-ordering-6lji.onrender.com"
+  const url = "http://localhost:4000"
 
   const [image, setImage] = useState(false)
 
@@ -161,3 +161,4 @@ const Add = () => {
 }
 
 export default Add
+

@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 
 const Auth = ({ onLoginSuccess }) => {
   const [currState, setCurrState] = useState("Login")
-  const url = "https://food-ordering-6lji.onrender.com"
+  const url = "http://localhost:4000"
 
   const [data, setData] = useState({
     name: "",
@@ -150,3 +150,4 @@ const Auth = ({ onLoginSuccess }) => {
 }
 
 export default Auth
+

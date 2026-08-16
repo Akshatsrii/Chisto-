@@ -1,0 +1,114 @@
+.cmdk-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 16px 70px rgba(0, 0, 0, 0.2);
+  border: 1px solid #eaeaea;
+  padding: 0;
+  overflow: hidden;
+  z-index: 9999;
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+.cmdk-dialog[data-state='open'] {
+  animation: dialogIn 0.2s ease-out forwards;
+}
+
+@keyframes dialogIn {
+  0% { opacity: 0; transform: translate(-50%, -48%) scale(0.96); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.cmdk-input-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.dark .cmdk-input-wrapper {
+  border-bottom: 1px solid #334155;
+}
+
+.cmdk-search-icon {
+  width: 20px;
+  height: 20px;
+  color: #888;
+  margin-right: 12px;
+}
+
+.cmdk-input {
+  flex: 1;
+  font-size: 16px;
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+}
+
+.cmdk-list {
+  max-height: 400px;
+  overflow: auto;
+  padding: 8px;
+}
+
+.cmdk-empty {
+  padding: 32px;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+}
+
+.cmdk-group-heading {
+  padding: 8px 16px;
+  font-size: 12px;
+  color: #888;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cmdk-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+  transition: background 0.1s ease;
+}
+
+.dark .cmdk-item {
+  color: #e2e8f0;
+}
+
+.cmdk-item[data-selected='true'] {
+  background: #f1f5f9;
+}
+
+.dark .cmdk-item[data-selected='true'] {
+  background: #1e293b;
+}
+
+.cmdk-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 12px;
+  opacity: 0.7;
+}
+
+/* Background Overlay */
+[cmdk-overlay] {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 9998;
+}
