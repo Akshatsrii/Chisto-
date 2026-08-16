@@ -1,0 +1,71 @@
+name: Chisto CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: '**/package.json'
+
+    # Backend Tests
+    - name: Install Backend Dependencies
+      run: npm install
+      working-directory: ./Backend
+
+    - name: Run Backend Tests (Jest)
+      run: npm test
+      working-directory: ./Backend
+
+    # Frontend Tests & Build
+    - name: Install Frontend Dependencies
+      run: npm install
+      working-directory: ./Frontend
+
+    - name: Run Frontend Tests (Vitest)
+      run: npm test
+      working-directory: ./Frontend
+
+    - name: Build Frontend
+      run: npm run build
+      working-directory: ./Frontend
+
+    # Admin Tests & Build
+    - name: Install Admin Dependencies
+      run: npm install
+      working-directory: ./admin
+
+    - name: Run Admin Tests (Vitest)
+      run: npm test
+      working-directory: ./admin
+
+    - name: Build Admin
+      run: npm run build
+      working-directory: ./admin
+
+  deploy-trigger:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Confirm Build Success
+        run: echo "🚀 All tests passed and builds succeeded. Ready for Vercel auto-deployment!"

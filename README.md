@@ -7,6 +7,7 @@
 <div align="center">
   
   [![Made with MERN](https://img.shields.io/badge/Made%20with-MERN-FF6B35?style=for-the-badge&logo=mongodb)](https://github.com)
+  [![CI/CD Pipeline](https://github.com/Akshatsrii/Food-Ordering/actions/workflows/ci.yml/badge.svg)](https://github.com/Akshatsrii/Food-Ordering/actions)
   [![Stripe Integration](https://img.shields.io/badge/Payment-Stripe-635BFF?style=for-the-badge&logo=stripe)](https://stripe.com)
   [![JWT Auth](https://img.shields.io/badge/Auth-JWT-000000?style=for-the-badge&logo=jsonwebtokens)](https://jwt.io)
   [![License](https://img.shields.io/badge/License-MIT-FFA500.svg?style=for-the-badge)](LICENSE)
