@@ -34,6 +34,18 @@ const couponSchema = new mongoose.Schema({
   userSpecific: {
     type: String,
     default: "" // User email if restricted, else empty
+  },
+  isFirstOrderOnly: {
+    type: Boolean,
+    default: false
+  },
+  categorySpecific: {
+    type: String,
+    default: "" // Category name if restricted, else empty
+  },
+  totalDiscountGiven: {
+    type: Number,
+    default: 0
   }
 })
 

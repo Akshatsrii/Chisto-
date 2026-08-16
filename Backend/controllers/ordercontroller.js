@@ -1,5 +1,6 @@
 const orderModel = require("../models/orderModel")
 const userModel = require("../models/userModel")
+const couponModel = require("../models/couponModel")
 const Stripe = require("stripe")
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
@@ -12,10 +13,23 @@ const placeOrder = async (req, res) => {
 
   try {
     const userId = req.userId
-    const { items, amount, address, paymentMethod, isScheduled, scheduledDate, travelDetails } = req.body
+    const { items, amount, address, paymentMethod, isScheduled, scheduledDate, travelDetails, couponCode, discountAmount } = req.body
 
     if (!items || !amount || !address) {
       return res.json({ success: false, message: "Missing order details" })
+    }
+
+    // Process coupon stats if a coupon was used
+    if (couponCode && discountAmount) {
+      await couponModel.findOneAndUpdate(
+        { code: couponCode.toUpperCase() },
+        { 
+          $inc: { 
+            usedCount: 1, 
+            totalDiscountGiven: discountAmount 
+          } 
+        }
+      )
     }
 
     // ======================

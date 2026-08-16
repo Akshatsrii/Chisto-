@@ -109,7 +109,9 @@ const PlaceOrder = () => {
             paymentMethod: "COD",
             isScheduled,
             scheduledDate,
-            travelDetails
+            travelDetails,
+            couponCode: appliedPromo,
+            discountAmount: promoDiscount
           },
           { headers: { token } }
         )
@@ -133,7 +135,9 @@ const PlaceOrder = () => {
             paymentMethod: "ONLINE",
             isScheduled,
             scheduledDate,
-            travelDetails
+            travelDetails,
+            couponCode: appliedPromo,
+            discountAmount: promoDiscount
           },
           { headers: { token } }
         )

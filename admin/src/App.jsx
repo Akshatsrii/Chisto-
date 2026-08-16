@@ -12,6 +12,7 @@ import Auth from './pages/Auth/Auth'
 import RiderDeliveries from './pages/RiderDeliveries/RiderDeliveries'
 import RiderEarnings from './pages/RiderEarnings/RiderEarnings'
 import Availability from './pages/Availability/Availability'
+import Coupons from './pages/Coupons/Coupons'
 import CommandPalette from './components/CommandPalette/CommandPalette'
 
 import { ToastContainer } from 'react-toastify'
@@ -71,6 +72,7 @@ const App = () => {
             <Route path="/list" element={<List />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/availability" element={<Availability />} />
+            <Route path="/coupons" element={<Coupons />} />
             <Route path="/rider-deliveries" element={<RiderDeliveries />} />
             <Route path="/rider-earnings" element={<RiderEarnings />} />
             <Route path="*" element={<Navigate to={role === "rider" ? "/rider-deliveries" : "/dashboard"} />} />

@@ -54,6 +54,11 @@ const Sidebar = () => {
               <span style={{ fontSize: '20px', marginRight: '5px' }}>📅</span>
               <p>Availability</p>
             </NavLink>
+
+            <NavLink to="/coupons" className="sidebar-option">
+              <span style={{ fontSize: '20px', marginRight: '5px' }}>🎟️</span>
+              <p>Coupons</p>
+            </NavLink>
           </>
         )}
 
