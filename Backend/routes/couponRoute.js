@@ -10,8 +10,70 @@ const authMiddleware = require("../middleware/auth")
 
 const couponRouter = express.Router()
 
+/**
+ * @swagger
+ * /api/coupon/create:
+ *   post:
+ *     summary: Create a new coupon (Admin)
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               code:
+ *                 type: string
+ *               discountPercentage:
+ *                 type: number
+ *               maxDiscountAmount:
+ *                 type: number
+ *               minOrderAmount:
+ *                 type: number
+ *               validUntil:
+ *                 type: string
+ *                 format: date-time
+ *     responses:
+ *       200:
+ *         description: Coupon created
+ */
 couponRouter.post("/create", authMiddleware, createCoupon)
-couponRouter.get("/list", authMiddleware, listCoupons) // Note: this shouldn't strictly require admin if frontend users need to see them, or maybe it should. For now keeping it as is.
+
+/**
+ * @swagger
+ * /api/coupon/list:
+ *   get:
+ *     summary: List all coupons
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of coupons
+ */
+couponRouter.get("/list", authMiddleware, listCoupons)
+
+/**
+ * @swagger
+ * /api/coupon/delete/{id}:
+ *   delete:
+ *     summary: Delete a coupon (Admin)
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon deleted
+ */
 couponRouter.delete("/delete/:id", authMiddleware, deleteCoupon)
 /**
  * @swagger

@@ -44,7 +44,20 @@
 ### 🛠️ **Admin & Partner Management**
 - 🍱 **Bento-Grid Admin Dashboard**: A beautiful, modern, Tailwind-powered Bento UI dashboard for the Admin panel with interactive charts (Recharts).
 - 🎟️ **Promo Code & Coupon System**: Admins can generate custom coupons (e.g., "CHISTO50"), set expiry dates, and usage limits, which users can apply seamlessly at checkout.
+- 📄 **Smart Menu Import (OCR)**: Restaurant partners can upload a photo of their physical menu, and Tesseract.js will automatically extract text to auto-fill the Add Food form.
+- 👨‍🍳 **Live Kitchen Load Indicator**: Calculates real-time kitchen busyness based on pending orders, updating the frontend dynamically via Socket.IO.
 - 📊 **Scale-Tested Database**: Seeded with **50 Unique Restaurants** and **750+ Dishes** to ensure robust performance and load testing.
+
+### 🌟 **Growth & Engagement**
+- 👑 **Chisto Prime Subscription**: Integrated Stripe recurring billing for a Prime membership that gives users unlimited free delivery.
+- 🤝 **Referral System**: Unique referral codes for each user. Inviting friends awards both users with loyalty points, tracked via a Viral Coefficient analytics dashboard.
+- 🔔 **Web Push Notifications**: Leverages the Web Push API and VAPID keys to send real-time order updates to the user's device, even when the app is closed.
+
+### 🔒 **Security, Testing & DevOps**
+- 🛡️ **API Hardening**: Express endpoints are secured with `helmet`, `express-mongo-sanitize`, and `express-rate-limit` to prevent brute force and NoSQL injection.
+- 📚 **Swagger API Docs**: Comprehensive OpenAPI specification available at `/api-docs` for easy API testing and visualization.
+- 🧪 **Automated Testing**: Robust test coverage using Jest + Supertest (Backend) and Vitest + React Testing Library (Frontend).
+- ⚙️ **CI/CD Pipeline**: Automated GitHub Actions workflow runs linting and test suites on every push to the main branch.
 
 ---
 

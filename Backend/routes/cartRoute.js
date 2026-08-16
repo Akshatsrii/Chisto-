@@ -47,6 +47,27 @@ cartRouter.get("/get", authMiddleware, getCart)
  */
 cartRouter.post("/add", authMiddleware, addToCart)
 
+/**
+ * @swagger
+ * /api/cart/remove:
+ *   post:
+ *     summary: Remove item from cart
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               itemId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Removed from cart
+ */
 cartRouter.post("/remove", authMiddleware, removeFromCart)
 
 module.exports = cartRouter
