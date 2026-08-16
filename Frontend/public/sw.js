@@ -53,9 +53,10 @@ self.addEventListener("fetch", (e) => {
         return caches.match(e.request).then((cachedResponse) => {
           if (cachedResponse) return cachedResponse
           // Fallback for HTML page when offline
-          if (e.request.headers.get("accept").includes("text/html")) {
+          if (e.request.headers.get("accept") && e.request.headers.get("accept").includes("text/html")) {
             return caches.match("/index.html")
           }
+          return Response.error()
         })
       })
   )
