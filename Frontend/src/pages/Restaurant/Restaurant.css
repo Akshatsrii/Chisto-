@@ -1,0 +1,45 @@
+.restaurant-page {
+  padding: 40px 10%;
+  min-height: 80vh;
+}
+
+.restaurant-page .back-btn {
+  background: transparent;
+  border: none;
+  color: #0c2340;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+.restaurant-page .back-btn:hover {
+  transform: translateX(-5px);
+}
+
+.restaurant-header {
+  margin-bottom: 30px;
+  border-bottom: 2px solid #eaeaea;
+  padding-bottom: 20px;
+}
+
+.restaurant-header h1 {
+  font-size: 32px;
+  color: #0c2340;
+  margin-bottom: 5px;
+}
+
+.restaurant-header p {
+  color: #666;
+  font-size: 16px;
+}
+
+.no-foods {
+  text-align: center;
+  padding: 50px 0;
+  color: #888;
+  font-size: 18px;
+}
