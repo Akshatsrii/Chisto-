@@ -44,6 +44,52 @@ const RiderDeliveries = () => {
     }
   }, [url])
 
+  // ================= REAL GPS TRACKING =================
+  const watchIdRef = useRef(null)
+
+  useEffect(() => {
+    const hasOutForDelivery = assignedOrders.some(o => o.status === "Out for Delivery")
+    
+    if (hasOutForDelivery && socket) {
+      if (navigator.geolocation && !watchIdRef.current) {
+        let lastEmitTime = 0
+        watchIdRef.current = navigator.geolocation.watchPosition(
+          (position) => {
+            const now = Date.now()
+            // Throttle to 5 seconds
+            if (now - lastEmitTime > 5000) {
+              const { latitude: lat, longitude: lng } = position.coords
+              const outForDeliveryOrders = assignedOrders.filter(o => o.status === "Out for Delivery")
+              
+              outForDeliveryOrders.forEach(order => {
+                socket.emit("rider_location_update", {
+                  orderId: order._id,
+                  lat,
+                  lng
+                })
+              })
+              lastEmitTime = now
+            }
+          },
+          (err) => console.error("GPS Watch Error:", err),
+          { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+        )
+      }
+    } else {
+      if (watchIdRef.current) {
+        navigator.geolocation.clearWatch(watchIdRef.current)
+        watchIdRef.current = null
+      }
+    }
+
+    return () => {
+      if (watchIdRef.current) {
+        navigator.geolocation.clearWatch(watchIdRef.current)
+        watchIdRef.current = null
+      }
+    }
+  }, [assignedOrders, socket])
+
   const stopWebRTC = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop())

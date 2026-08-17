@@ -78,6 +78,10 @@ const orderSchema = new mongoose.Schema({
   surgeFee: {
     type: Number,
     default: 0
+  },
+  riderLocation: {
+    lat: Number,
+    lng: Number
   }
 })
 

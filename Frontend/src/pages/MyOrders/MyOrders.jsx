@@ -111,6 +111,13 @@ const MyOrders = () => {
       toast.info(`Order Status updated to: ${data.status} 🚴‍♂️`)
     })
 
+    // Listen for real-time rider GPS updates
+    socket.on("rider_location_update", (data) => {
+      if (driverMarkerRef.current && driverMarkerRef.current.orderId === data.orderId) {
+        driverMarkerRef.current.marker.setLatLng([data.lat, data.lng])
+      }
+    })
+
     // WEBRTC SIGNALING
     socket.on("webrtc_offer", (data) => {
       setWebrtcOffer(data.offer)
@@ -247,9 +254,11 @@ const MyOrders = () => {
       L.marker(deliveryCoords, { icon: createEmojiIcon("🏠", "Delivery Point") }).addTo(map)
         .bindPopup("<b>Delivery Address</b><br>Customer Location")
 
-      // Add Rider marker (starting at kitchen)
-      const driverMarker = L.marker(restCoords, { icon: createEmojiIcon("🏍️", "Rider") }).addTo(map)
-      driverMarkerRef.current = { marker: driverMarker, start: restCoords, end: deliveryCoords }
+      // Add Rider marker (starting at last known location or kitchen)
+      const riderLat = trackingOrder.riderLocation?.lat || restCoords[0]
+      const riderLng = trackingOrder.riderLocation?.lng || restCoords[1]
+      const driverMarker = L.marker([riderLat, riderLng], { icon: createEmojiIcon("🏍️", "Rider") }).addTo(map)
+      driverMarkerRef.current = { marker: driverMarker, orderId: trackingOrder._id }
 
       // ================= OSRM ROUTE OPTIMIZATION =================
       try {
@@ -286,37 +295,15 @@ const MyOrders = () => {
     return () => clearTimeout(timer)
   }, [mapLoaded, trackingOrder])
 
-  // Rider Marker Animation (Simulated progress along straight line for visual effect)
+  // ETA updates (optional polling could go here if needed)
   useEffect(() => {
     if (!trackingOrder) return
     const status = trackingOrder.status || "Food Processing"
 
-    if (status !== "Out for Delivery") {
-      setDeliveryProgress(status === "Delivered" ? 100 : 0)
-      return
+    if (status === "Delivered") {
+      setEtaText("Arrived")
     }
-
-    const interval = setInterval(() => {
-      setDeliveryProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          return 100
-        }
-        return prev + 4
-      })
-    }, 400)
-
-    return () => clearInterval(interval)
   }, [trackingOrder])
-
-  // Coordinate updates
-  useEffect(() => {
-    if (!driverMarkerRef.current) return
-    const { marker, start, end } = driverMarkerRef.current
-    const lat = start[0] + (end[0] - start[0]) * (deliveryProgress / 100)
-    const lng = start[1] + (end[1] - start[1]) * (deliveryProgress / 100)
-    marker.setLatLng([lat, lng])
-  }, [deliveryProgress])
 
   // ================= 3. ORDER AGAIN FEATURE =================
   const handleReorder = async (orderItems) => {

@@ -266,6 +266,21 @@ io.on("connection", (socket) => {
     socket.to(data.orderId).emit("webrtc_end", data)
   })
 
+  // ================= REAL-TIME GPS TRACKING =================
+  socket.on("rider_location_update", async ({ orderId, lat, lng }) => {
+    try {
+      // Broadcast to customer
+      socket.to(orderId).emit("rider_location_update", { orderId, lat, lng })
+      
+      // Update DB with last known location for refresh fallback
+      await orderModel.findByIdAndUpdate(orderId, {
+        riderLocation: { lat, lng }
+      })
+    } catch (error) {
+      console.log("Error updating rider location:", error)
+    }
+  })
+
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`)
   })
