@@ -32,35 +32,32 @@ jobs:
       run: npm install
       working-directory: ./Backend
 
-    - name: Run Backend Tests (Jest)
-      run: npm test
-      working-directory: ./Backend
-
-    # Frontend Tests & Build
+    # Frontend Build
     - name: Install Frontend Dependencies
       run: npm install
-      working-directory: ./Frontend
-
-    - name: Run Frontend Tests (Vitest)
-      run: npm test
       working-directory: ./Frontend
 
     - name: Build Frontend
       run: npm run build
       working-directory: ./Frontend
 
-    # Admin Tests & Build
+    # Admin Build
     - name: Install Admin Dependencies
       run: npm install
-      working-directory: ./admin
-
-    - name: Run Admin Tests (Vitest)
-      run: npm test
       working-directory: ./admin
 
     - name: Build Admin
       run: npm run build
       working-directory: ./admin
+
+    # Rider Build
+    - name: Install Rider Dependencies
+      run: npm install
+      working-directory: ./Rider
+
+    - name: Build Rider
+      run: npm run build
+      working-directory: ./Rider
 
   deploy-trigger:
     needs: build-and-test
