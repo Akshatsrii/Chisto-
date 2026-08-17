@@ -8,5 +8,18 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/setupTests.js'
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'genai-vendor': ['@google/genai'],
+          'map-vendor': ['@turf/turf'],
+          'socket-vendor': ['socket.io-client'],
+          'i18n-vendor': ['i18next', 'react-i18next']
+        }
+      }
+    }
   }
 })
