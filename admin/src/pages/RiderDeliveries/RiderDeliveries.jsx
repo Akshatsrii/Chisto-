@@ -8,10 +8,12 @@ const RiderDeliveries = () => {
   const url = "http://localhost:4000"
   const token = localStorage.getItem("admin-token")
 
+  const [isOnline, setIsOnline] = useState(true)
+  const [activeTab, setActiveTab] = useState("Available")
+
   const [unassignedOrders, setUnassignedOrders] = useState([])
   const [assignedOrders, setAssignedOrders] = useState([])
   const [loading, setLoading] = useState(true)
-  const [isOptimizing, setIsOptimizing] = useState(false)
 
   // ================= WEBRTC STATE & REFS =================
   const [socket, setSocket] = useState(null)
@@ -20,6 +22,10 @@ const RiderDeliveries = () => {
   const localVideoRef = useRef(null)
   const peerConnectionRef = useRef(null)
   const streamRef = useRef(null)
+
+  // ================= MAP REFS =================
+  const mapRef = useRef(null)
+  const mapContainerRef = useRef(null)
 
   useEffect(() => {
     const newSocket = io(url)
@@ -46,6 +52,7 @@ const RiderDeliveries = () => {
 
   // ================= REAL GPS TRACKING =================
   const watchIdRef = useRef(null)
+  const [riderCoords, setRiderCoords] = useState(null)
 
   useEffect(() => {
     const hasOutForDelivery = assignedOrders.some(o => o.status === "Out for Delivery")
@@ -56,11 +63,13 @@ const RiderDeliveries = () => {
         watchIdRef.current = navigator.geolocation.watchPosition(
           (position) => {
             const now = Date.now()
+            const lat = position.coords.latitude
+            const lng = position.coords.longitude
+            setRiderCoords([lat, lng])
+            
             // Throttle to 5 seconds
             if (now - lastEmitTime > 5000) {
-              const { latitude: lat, longitude: lng } = position.coords
               const outForDeliveryOrders = assignedOrders.filter(o => o.status === "Out for Delivery")
-              
               outForDeliveryOrders.forEach(order => {
                 socket.emit("rider_location_update", {
                   orderId: order._id,
@@ -118,10 +127,8 @@ const RiderDeliveries = () => {
       })
       peerConnectionRef.current = pc
 
-      // Add local stream tracks
       stream.getTracks().forEach(track => pc.addTrack(track, stream))
 
-      // ICE candidates generated locally -> send to Customer
       pc.onicecandidate = (event) => {
         if (event.candidate) {
           socket.emit("webrtc_ice_candidate", {
@@ -131,11 +138,9 @@ const RiderDeliveries = () => {
         }
       }
 
-      // Create Offer
       const offer = await pc.createOffer()
       await pc.setLocalDescription(offer)
       
-      // Emit Offer to Customer
       socket.emit("webrtc_offer", {
         orderId,
         offer
@@ -145,7 +150,7 @@ const RiderDeliveries = () => {
 
     } catch (err) {
       console.error(err)
-      toast.error("Camera access denied or error occurred")
+      toast.error("Camera access denied")
       stopWebRTC()
     }
   }
@@ -158,8 +163,8 @@ const RiderDeliveries = () => {
     }
   }
 
-  // Fetch all rider-related orders
   const fetchData = async () => {
+    if (!isOnline) return;
     try {
       setLoading(true)
       const resUnassigned = await axios.get(`${url}/api/order/unassigned`, {
@@ -174,6 +179,11 @@ const RiderDeliveries = () => {
       }
       if (resAssigned.data.success) {
         setAssignedOrders(resAssigned.data.data)
+        
+        // Auto switch tab if active orders exist
+        if (resAssigned.data.data.filter(o => o.status !== "Delivered").length > 0) {
+           setActiveTab("Active")
+        }
       }
     } catch (err) {
       console.error(err)
@@ -184,19 +194,17 @@ const RiderDeliveries = () => {
   }
 
   useEffect(() => {
-    if (token) {
-      fetchData()
-    }
-  }, [token])
+    if (token) fetchData()
+  }, [token, isOnline])
 
-  // Accept Order handler
   const handleAcceptOrder = async (orderId) => {
     try {
       const res = await axios.post(`${url}/api/order/accept`, { orderId }, {
         headers: { token }
       })
       if (res.data.success) {
-        toast.success("Order accepted successfully! 🏍️")
+        toast.success("Order accepted! 🏍️")
+        setActiveTab("Active")
         fetchData()
       } else {
         toast.error(res.data.message)
@@ -207,7 +215,6 @@ const RiderDeliveries = () => {
     }
   }
 
-  // Update Status handler
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
       const res = await axios.post(`${url}/api/order/rider-status`, {
@@ -217,7 +224,7 @@ const RiderDeliveries = () => {
         headers: { token }
       })
       if (res.data.success) {
-        toast.success(`Order status updated to: ${newStatus} 🎉`)
+        toast.success(`Updated to: ${newStatus} 🎉`)
         fetchData()
       } else {
         toast.error(res.data.message)
@@ -228,265 +235,246 @@ const RiderDeliveries = () => {
     }
   }
 
-  // ================= 4. OPTIMIZE ROUTE VIA OSRM TRIP API =================
-  const optimizeRoute = async () => {
-    const activeOrders = assignedOrders.filter(o => o.status !== "Delivered")
-    if (activeOrders.length < 2) {
-      toast.info("Need at least 2 active deliveries to optimize route.")
-      return
-    }
-
-    try {
-      setIsOptimizing(true)
-      // 1. Get starting point (using the first order's restaurant coords or default)
-      let rLat = 28.6139, rLon = 77.2090
-      const firstRName = activeOrders[0].items[0]?.restaurantName
-      if (firstRName) {
-        const res = await axios.get(`${url}/api/restaurant/availability/${firstRName}`)
-        if (res.data.success && res.data.data) {
-          rLat = res.data.data.latitude || rLat
-          rLon = res.data.data.longitude || rLon
-        }
-      }
-
-      // 2. Build coordinates string: {lon,lat};{lon,lat}...
-      // Start with Restaurant, then append all order delivery locations
-      const coords = [[rLon, rLat]]
-      activeOrders.forEach(o => {
-        // use fallback if lat/lon missing
-        const dLat = o.address?.lat || rLat + 0.01
-        const dLon = o.address?.lon || rLon + 0.01
-        coords.push([dLon, dLat])
-      })
-
-      const coordsString = coords.map(c => `${c[0]},${c[1]}`).join(';')
-
-      // 3. Call OSRM Trip API
-      // source=first means start at the restaurant and then find shortest path through the rest
-      // roundtrip=false means we don't have to return to the restaurant at the end
-      const osrmUrl = `http://router.project-osrm.org/trip/v1/driving/${coordsString}?source=first&roundtrip=false`
-      const osrmRes = await axios.get(osrmUrl)
-
-      if (osrmRes.data && osrmRes.data.waypoints) {
-        // waypoints array represents the input coordinates
-        // waypoints[0] is the restaurant
-        // waypoints[1 to N] correspond to activeOrders[0 to N-1]
-        // Each waypoint has a `waypoint_index` indicating its position in the optimized trip
-        
-        const optimizedOrders = [...activeOrders].map((order, idx) => {
-          // original index in coords array is idx + 1
-          const waypointInfo = osrmRes.data.waypoints[idx + 1]
-          return {
-            ...order,
-            optimalIndex: waypointInfo.waypoint_index
-          }
-        })
-
-        // Sort ascending by optimalIndex
-        optimizedOrders.sort((a, b) => a.optimalIndex - b.optimalIndex)
-        
-        // Find delivered orders
-        const deliveredOrders = assignedOrders.filter(o => o.status === "Delivered")
-        
-        // Update state
-        setAssignedOrders([...optimizedOrders, ...deliveredOrders])
-        toast.success("Route Optimized Successfully! 🚀")
-      }
-
-    } catch (err) {
-      console.error("OSRM Optimize Error", err)
-      toast.error("Failed to optimize route. Please try again.")
-    } finally {
-      setIsOptimizing(false)
-    }
-  }
-
   const activeDeliveries = assignedOrders.filter(o => o.status !== "Delivered")
+  const outForDelivery = activeDeliveries.find(o => o.status === "Out for Delivery")
+
+  // ================= MAP INITIALIZATION (IMMERSIVE VIEW) =================
+  useEffect(() => {
+    if (outForDelivery && activeTab === "Active") {
+      const timer = setTimeout(async () => {
+        const L = window.L
+        if (!L || !mapContainerRef.current) return
+        
+        if (!mapRef.current) {
+          const map = L.map(mapContainerRef.current).setView([28.6139, 77.2090], 13)
+          mapRef.current = map
+
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: '&copy; OpenStreetMap'
+          }).addTo(map)
+
+          // Fetch coords
+          let rLat = 28.6139, rLon = 77.2090;
+          try {
+            const rName = outForDelivery.items[0]?.restaurantName
+            if (rName) {
+               const res = await axios.get(`${url}/api/restaurant/availability/${rName}`)
+               if (res.data.success && res.data.data) {
+                 rLat = res.data.data.latitude || rLat
+                 rLon = res.data.data.longitude || rLon
+               }
+            }
+          } catch(e) {}
+
+          const dLat = outForDelivery.address?.lat || rLat + 0.01
+          const dLon = outForDelivery.address?.lon || rLon + 0.01
+          
+          const createEmojiIcon = (emoji) => {
+            return L.divIcon({
+              html: `<div style="font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">${emoji}</div>`,
+              iconSize: [35, 35],
+              iconAnchor: [17, 30]
+            })
+          }
+
+          L.marker([rLat, rLon], { icon: createEmojiIcon("🧑‍🍳") }).addTo(map)
+          L.marker([dLat, dLon], { icon: createEmojiIcon("🏠") }).addTo(map)
+          
+          if (riderCoords) {
+             L.marker(riderCoords, { icon: createEmojiIcon("🏍️") }).addTo(map)
+          }
+
+          // Route
+          try {
+            const osrmUrl = `http://router.project-osrm.org/route/v1/driving/${rLon},${rLat};${dLon},${dLat}?overview=full&geometries=geojson`
+            const osrmRes = await axios.get(osrmUrl)
+            if (osrmRes.data && osrmRes.data.routes && osrmRes.data.routes.length > 0) {
+              const route = osrmRes.data.routes[0]
+              L.geoJSON(route.geometry, { style: { color: '#3b82f6', weight: 5, opacity: 0.8 } }).addTo(map)
+            } else {
+              L.polyline([[rLat, rLon], [dLat, dLon]], { color: '#0c2340', weight: 3, dashArray: '5, 8' }).addTo(map)
+            }
+          } catch(e) {}
+
+          const group = new L.featureGroup([L.marker([rLat, rLon]), L.marker([dLat, dLon])])
+          map.fitBounds(group.getBounds(), { padding: [40, 40] })
+          
+          setTimeout(() => map.invalidateSize(), 300)
+        }
+      }, 500)
+      return () => clearTimeout(timer)
+    } else {
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+      }
+    }
+  }, [outForDelivery, activeTab])
 
   return (
     <div className="rider-deliveries">
-      <div className="rider-header">
-        <h2>🏍️ Rider Delivery Dashboard</h2>
-        <p>Manage active delivery assignments and accept new requests</p>
+      
+      {/* TOP BAR */}
+      <div className="rider-top-bar">
+        <h3 style={{ margin: 0, fontWeight: 700, color: '#0c2340' }}>Chisto Rider</h3>
+        <div 
+          className={`rider-status-toggle ${isOnline ? 'online' : 'offline'}`}
+          onClick={() => setIsOnline(!isOnline)}
+        >
+          {isOnline ? (
+             <><div className="status-dot-pulse"></div><span>Online</span></>
+          ) : (
+             <><div style={{width:'12px', height:'12px', borderRadius:'50%', background:'#ef4444'}}></div><span>Offline</span></>
+          )}
+        </div>
       </div>
 
-      {loading ? (
-        <div className="rider-loading">
-          <div className="spinner"></div>
-          <p>Loading delivery pool...</p>
+      {!isOnline ? (
+        <div className="offline-state">
+          <div className="offline-icon">😴</div>
+          <h2>You are offline</h2>
+          <p>Go online to start receiving delivery requests.</p>
         </div>
+      ) : loading ? (
+        <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>
       ) : (
-        <div className="rider-content-grid">
-          
-          {/* ASSIGNED/ACTIVE ORDERS */}
-          <div className="rider-section active-orders-section">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-              <h3 style={{ margin: 0 }}>📍 My Active Deliveries ({activeDeliveries.length})</h3>
-              
-              {activeDeliveries.length >= 2 && (
-                <button 
-                  onClick={optimizeRoute}
-                  disabled={isOptimizing}
-                  style={{
-                    padding: '8px 16px',
-                    background: isOptimizing ? '#ccc' : '#f59e0b',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: isOptimizing ? 'not-allowed' : 'pointer',
-                    fontWeight: 'bold',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  {isOptimizing ? "Optimizing..." : "✨ Optimize Route (OSRM)"}
-                </button>
+        <>
+          {activeTab === "Available" && (
+            <div className="rider-content-mobile">
+              <h2 className="rider-section-title">Open Pool ({unassignedOrders.length})</h2>
+              {unassignedOrders.length === 0 ? (
+                <div style={{textAlign:'center', padding:'40px', color:'#a0aec0'}}>
+                  No new delivery requests right now. Check back soon!
+                </div>
+              ) : (
+                unassignedOrders.map(order => (
+                  <div key={order._id} className="mobile-order-card">
+                    <div className="card-header-mobile">
+                      <span className="order-badge available">New Request</span>
+                      <strong style={{color:'#4a5568'}}>₹{Math.round(order.amount * 0.1) || 50} Earn</strong>
+                    </div>
+                    <div className="card-body-mobile">
+                      <div className="info-block">
+                        <div className="icon">🧑‍🍳</div>
+                        <div>
+                          <h4>Pickup From</h4>
+                          <p>{order.items[0]?.restaurantName || "Chisto Kitchen"}</p>
+                        </div>
+                      </div>
+                      <div className="info-block">
+                        <div className="icon">🏠</div>
+                        <div>
+                          <h4>Deliver To</h4>
+                          <p>{order.address.city}, {order.address.state}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <button className="mobile-action-btn accept" onClick={() => handleAcceptOrder(order._id)}>
+                      Accept Delivery
+                    </button>
+                  </div>
+                ))
               )}
             </div>
-            
-            {activeDeliveries.length === 0 ? (
-              <div className="empty-card">
-                <p>No active deliveries. Pick up a new order from the open pool on the right! 🍕</p>
-              </div>
-            ) : (
-              <div className="rider-orders-list">
-                {assignedOrders.filter(o => o.status !== "Delivered").map((order, idx) => (
-                  <div key={order._id} className="rider-order-card active">
-                    <div className="card-header">
-                      <div>
-                        {activeDeliveries.length > 1 && (
-                          <span style={{ 
-                            background: '#0c2340', color: 'white', padding: '2px 8px', 
-                            borderRadius: '12px', fontSize: '12px', marginRight: '8px', fontWeight: 'bold' 
-                          }}>
-                            #{idx + 1}
-                          </span>
-                        )}
-                        <span className="order-id">ID: #{order._id.substring(order._id.length - 8)}</span>
-                      </div>
-                      <span className={`status-pill ${order.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                        {order.status}
-                      </span>
-                    </div>
+          )}
 
-                    <div className="card-body">
-                      <div className="info-row">
-                        <strong>Restaurant Name:</strong>
-                        <span>{order.items[0]?.restaurantName || "Chisto Kitchen"}</span>
-                      </div>
-                      
-                      <div className="info-row">
-                        <strong>Items:</strong>
-                        <span>
-                          {order.items.map((item, i) => (
-                            <span key={i} className="item-tag">
-                              {item.name} x {item.quantity}
-                            </span>
-                          ))}
-                        </span>
-                      </div>
-
-                      <div className="info-row">
-                        <strong>Delivery Address:</strong>
-                        <span>
-                          {order.address.street}, {order.address.city}, {order.address.state} - {order.address.zip}
-                        </span>
-                      </div>
-
-                      <div className="info-row">
-                        <strong>Customer Name/Phone:</strong>
-                        <span>{order.address.firstName} {order.address.lastName} ({order.address.phone})</span>
-                      </div>
-
-                      <div className="info-row amount-row">
-                        <strong>Cash to Collect:</strong>
-                        <span className="amount-value">₹{order.amount}</span>
-                      </div>
-                    </div>
-
-                    <div className="card-actions">
-                      {order.status === "Food Processing" && (
-                        <button 
-                          className="action-btn pickup"
-                          onClick={() => handleUpdateStatus(order._id, "Out for Delivery")}
-                        >
-                          📦 Pick Up Order
-                        </button>
-                      )}
-                      {order.status === "Out for Delivery" && (
-                        <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
-                          <button 
-                            className="action-btn"
-                            style={{ flex: 1, backgroundColor: '#3b82f6', color: 'white' }}
-                            onClick={() => startWebRTC(order._id)}
-                          >
-                            🎥 Verify Handoff
-                          </button>
-                          <button 
-                            className="action-btn deliver"
-                            style={{ flex: 1 }}
-                            onClick={() => handleUpdateStatus(order._id, "Delivered")}
-                          >
-                            ✔ Delivered
-                          </button>
-                        </div>
-                      )}
+          {activeTab === "Active" && (
+            outForDelivery ? (
+              <div className="active-delivery-immersive">
+                <div className="immersive-map-container">
+                   <div id="rider-live-map" ref={mapContainerRef}></div>
+                </div>
+                <div className="immersive-drawer">
+                  <div className="drawer-pull"></div>
+                  <div className="card-header-mobile">
+                    <span className="order-badge">Active Delivery</span>
+                    <strong style={{color:'#2b6cb0'}}>Collect: ₹{outForDelivery.amount}</strong>
+                  </div>
+                  
+                  <div className="info-block">
+                    <div className="icon">🏠</div>
+                    <div>
+                      <h4>Dropoff Address</h4>
+                      <p>{outForDelivery.address.street}, {outForDelivery.address.city}</p>
+                      <p style={{color:'#718096', fontSize:'13px', fontWeight:'normal'}}>{outForDelivery.address.firstName} {outForDelivery.address.lastName} • {outForDelivery.address.phone}</p>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
 
-          {/* OPEN DELIVERY POOL (UNASSIGNED) */}
-          <div className="rider-section open-pool-section">
-            <h3>📥 Open Delivery Pool ({unassignedOrders.length})</h3>
-            
-            {unassignedOrders.length === 0 ? (
-              <div className="empty-card">
-                <p>No new delivery requests in the pool right now. Check back soon!</p>
+                  <div className="immersive-actions">
+                    <button className="mobile-action-btn verify" onClick={() => startWebRTC(outForDelivery._id)}>
+                      🎥 Verify
+                    </button>
+                    <button className="mobile-action-btn deliver" onClick={() => handleUpdateStatus(outForDelivery._id, "Delivered")}>
+                      ✔ Mark Delivered
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
-              <div className="rider-orders-list">
-                {unassignedOrders.map((order) => (
-                  <div key={order._id} className="rider-order-card unassigned">
-                    <div className="card-header">
-                      <span className="order-id">ID: #{order._id.substring(order._id.length - 8)}</span>
-                      <span className="pool-badge">Available</span>
-                    </div>
-
-                    <div className="card-body">
-                      <div className="info-row">
-                        <strong>Restaurant:</strong>
-                        <span>{order.items[0]?.restaurantName || "Chisto Kitchen"}</span>
+              <div className="rider-content-mobile">
+                <h2 className="rider-section-title">My Assignments ({activeDeliveries.length})</h2>
+                {activeDeliveries.length === 0 ? (
+                  <div style={{textAlign:'center', padding:'40px', color:'#a0aec0'}}>
+                    You have no active assignments. Check Available pool.
+                  </div>
+                ) : (
+                  activeDeliveries.map(order => (
+                    <div key={order._id} className="mobile-order-card" style={{borderLeft: '4px solid #f59e0b'}}>
+                      <div className="card-header-mobile">
+                        <span className="order-badge" style={{background:'#fffaf0', color:'#dd6b20'}}>Processing</span>
+                        <strong style={{color:'#4a5568'}}>ID: #{order._id.substring(order._id.length - 6)}</strong>
                       </div>
-
-                      <div className="info-row">
-                        <strong>Delivery Destination:</strong>
-                        <span>{order.address.city}, {order.address.state}</span>
+                      <div className="card-body-mobile">
+                        <div className="info-block">
+                          <div className="icon">🧑‍🍳</div>
+                          <div>
+                            <h4>Pickup From</h4>
+                            <p>{order.items[0]?.restaurantName || "Chisto Kitchen"}</p>
+                          </div>
+                        </div>
+                        <div className="info-block">
+                          <div className="icon">🏠</div>
+                          <div>
+                            <h4>Deliver To</h4>
+                            <p>{order.address.street}, {order.address.city}</p>
+                          </div>
+                        </div>
                       </div>
-
-                      <div className="info-row">
-                        <strong>Est. Earnings:</strong>
-                        <span className="earning-est">₹50.00</span>
-                      </div>
-                    </div>
-
-                    <div className="card-actions">
-                      <button 
-                        className="action-btn accept"
-                        onClick={() => handleAcceptOrder(order._id)}
-                      >
-                        🏍️ Accept Delivery
+                      <button className="mobile-action-btn pickup" onClick={() => handleUpdateStatus(order._id, "Out for Delivery")}>
+                        Mark Picked Up
                       </button>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
-            )}
-          </div>
+            )
+          )}
 
-        </div>
+          {activeTab === "Earnings" && (
+            <div className="earnings-placeholder">
+              <h2>Total Earnings</h2>
+              <h1>₹{assignedOrders.filter(o => o.status === "Delivered").reduce((sum, o) => sum + (Math.round(o.amount * 0.1) || 50), 0)}</h1>
+              <p>From {assignedOrders.filter(o => o.status === "Delivered").length} completed deliveries.</p>
+            </div>
+          )}
+        </>
       )}
+
+      {/* BOTTOM NAV BAR */}
+      <div className="rider-bottom-nav">
+        <button className={`nav-tab ${activeTab === 'Available' ? 'active' : ''}`} onClick={() => setActiveTab('Available')}>
+          <div className="nav-icon">📥</div>
+          Available
+        </button>
+        <button className={`nav-tab ${activeTab === 'Active' ? 'active' : ''}`} onClick={() => setActiveTab('Active')}>
+          <div className="nav-icon">🏍️</div>
+          Active
+        </button>
+        <button className={`nav-tab ${activeTab === 'Earnings' ? 'active' : ''}`} onClick={() => setActiveTab('Earnings')}>
+          <div className="nav-icon">💰</div>
+          Earnings
+        </button>
+      </div>
 
       {/* WEBRTC MODAL */}
       {activeWebRtcOrder && (

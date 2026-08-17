@@ -12,7 +12,6 @@ const OrderConfirm = () => {
   
   const [mapLoaded, setMapLoaded] = useState(false)
   const [orderStatus, setOrderStatus] = useState("Food Processing")
-  const [deliveryProgress, setDeliveryProgress] = useState(0) // 0 to 100%
   const [paymentPaid, setPaymentPaid] = useState(false)
   const [orderData, setOrderData] = useState(null)
   const [etaText, setEtaText] = useState("Calculating ETA...")
@@ -38,6 +37,13 @@ const OrderConfirm = () => {
       if (data.orderId === orderId) {
         setOrderStatus(data.status)
         toast.info(`Order status updated to: ${data.status} 🚴‍♂️`)
+      }
+    })
+
+    // Listen for real-time rider GPS updates
+    socket.on("rider_location_update", (data) => {
+      if (data.orderId === orderId && driverMarkerRef.current) {
+        driverMarkerRef.current.marker.setLatLng([data.lat, data.lng])
       }
     })
 
@@ -126,10 +132,12 @@ const OrderConfirm = () => {
       const userMarker = L.marker(deliveryCoords, { icon: createEmojiIcon("🏠", "Your Address") }).addTo(map)
         .bindPopup("<b>Your Address</b><br>Safe Delivery Spot")
 
-      // Add initial Delivery Boy motorcycle marker at restaurant
-      const driverMarker = L.marker(restCoords, { icon: createEmojiIcon("🏍️", "Delivery Boy") }).addTo(map)
-        .bindPopup("<b>Chisto Rider</b><br>On the way to pick up food.")
-      driverMarkerRef.current = { marker: driverMarker, start: restCoords, end: deliveryCoords }
+      // Add initial Delivery Boy motorcycle marker at last known location or restaurant
+      const riderLat = orderData.riderLocation?.lat || restCoords[0]
+      const riderLng = orderData.riderLocation?.lng || restCoords[1]
+      const driverMarker = L.marker([riderLat, riderLng], { icon: createEmojiIcon("🏍️", "Delivery Boy") }).addTo(map)
+        .bindPopup("<b>Chisto Rider</b><br>On the way to deliver food.")
+      driverMarkerRef.current = { marker: driverMarker, orderId: orderId }
 
       // ================= OSRM ROUTE OPTIMIZATION =================
       try {
@@ -163,50 +171,23 @@ const OrderConfirm = () => {
     return () => clearTimeout(timer)
   }, [mapLoaded, orderData])
 
-  // ================= 4. DELIVERY BOY MOVEMENT SIMULATION =================
+  // ================= 4. ETA AND STATUS FALLBACKS =================
   useEffect(() => {
-    if (orderStatus !== "Out for Delivery") {
-      if (orderStatus === "Delivered") {
-        setDeliveryProgress(100)
-      } else {
-        setDeliveryProgress(0)
+    if (orderStatus === "Delivered") {
+      setEtaText("Arrived")
+      if (driverMarkerRef.current) {
+        driverMarkerRef.current.marker.setPopupContent("<b>Chisto Rider</b><br>Arrived at your location! 🍕🎉")
       }
-      return
-    }
-
-    // Out for Delivery: simulate driver traveling
-    const interval = setInterval(() => {
-      setDeliveryProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          return 100
-        }
-        return prev + 2 // move 2% every 400ms (takes 20 seconds to reach user)
-      })
-    }, 400)
-
-    return () => clearInterval(interval)
-  }, [orderStatus])
-
-  // ================= 5. DYNAMICALLY UPDATE MARKER COORDINATES =================
-  useEffect(() => {
-    if (!driverMarkerRef.current) return
-    const { marker, start, end } = driverMarkerRef.current
-    
-    const lat = start[0] + (end[0] - start[0]) * (deliveryProgress / 100)
-    const lng = start[1] + (end[1] - start[1]) * (deliveryProgress / 100)
-    
-    marker.setLatLng([lat, lng])
-
-    // Update popup text based on progress
-    if (deliveryProgress === 0) {
-      marker.setPopupContent("<b>Chisto Rider</b><br>Waiting for preparation to complete at restaurant.")
-    } else if (deliveryProgress > 0 && deliveryProgress < 100) {
-      marker.setPopupContent(`<b>Chisto Rider</b><br>Out for delivery: ${Math.round(deliveryProgress)}% arrived.`)
+    } else if (orderStatus === "Out for Delivery") {
+      if (driverMarkerRef.current) {
+         driverMarkerRef.current.marker.setPopupContent(`<b>Chisto Rider</b><br>Out for delivery toward you.`)
+      }
     } else {
-      marker.setPopupContent("<b>Chisto Rider</b><br>Arrived at your location! 🍕🎉")
+      if (driverMarkerRef.current) {
+         driverMarkerRef.current.marker.setPopupContent("<b>Chisto Rider</b><br>Waiting for preparation to complete.")
+      }
     }
-  }, [deliveryProgress])
+  }, [orderStatus])
 
   return (
     <div className="order-confirm">
@@ -276,7 +257,7 @@ const OrderConfirm = () => {
           </div>
           <div className="driver-eta-text">
             <span>Rider ETA: <b style={{ color: '#f59e0b' }}>{orderStatus === "Delivered" ? "Arrived" : etaText}</b></span>
-            <span>Rider Distance: <b>{Math.round(100 - deliveryProgress)}% remaining</b></span>
+            <span>Status: <b>{orderStatus}</b></span>
           </div>
         </div>
 
