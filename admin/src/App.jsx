@@ -9,8 +9,6 @@ const Add = React.lazy(() => import('./pages/Add/Add'))
 const List = React.lazy(() => import('./pages/List/List'))
 const Orders = React.lazy(() => import('./pages/Orders/Orders'))
 const Auth = React.lazy(() => import('./pages/Auth/Auth'))
-const RiderDeliveries = React.lazy(() => import('./pages/RiderDeliveries/RiderDeliveries'))
-const RiderEarnings = React.lazy(() => import('./pages/RiderEarnings/RiderEarnings'))
 const Availability = React.lazy(() => import('./pages/Availability/Availability'))
 const Coupons = React.lazy(() => import('./pages/Coupons/Coupons'))
 import CommandPalette from './components/CommandPalette/CommandPalette'
@@ -69,16 +67,14 @@ const App = () => {
         <div className="flex-1 overflow-auto">
           <React.Suspense fallback={<div className="flex justify-center items-center py-20">Loading...</div>}>
             <Routes>
-              <Route path="/" element={<Navigate to={role === "rider" ? "/rider-deliveries" : "/dashboard"} />} />
+              <Route path="/" element={<Navigate to="/dashboard" />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/add" element={<Add />} />
               <Route path="/list" element={<List />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/availability" element={<Availability />} />
               <Route path="/coupons" element={<Coupons />} />
-              <Route path="/rider-deliveries" element={<RiderDeliveries />} />
-              <Route path="/rider-earnings" element={<RiderEarnings />} />
-              <Route path="*" element={<Navigate to={role === "rider" ? "/rider-deliveries" : "/dashboard"} />} />
+              <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>
           </React.Suspense>
         </div>
