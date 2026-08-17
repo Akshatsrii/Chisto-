@@ -461,6 +461,60 @@ const acceptOrder = async (req, res) => {
 }
 
 // ==============================
+// RESTAURANT: ASSIGN ORDER TO RIDER
+// ==============================
+const assignRiderToOrder = async (req, res) => {
+  try {
+    const { orderId, riderId } = req.body
+    
+    // Admin or Restaurant only
+    const user = await userModel.findById(req.userId)
+    if (!user || (user.role !== "admin" && user.role !== "restaurant")) {
+      return res.status(403).json({ success: false, message: "Unauthorized" })
+    }
+
+    const rider = await userModel.findById(riderId)
+    if (!rider || rider.role !== "rider") {
+      return res.json({ success: false, message: "Invalid rider selected" })
+    }
+
+    const orderToAccept = await orderModel.findById(orderId)
+    if (!orderToAccept) return res.json({ success: false, message: "Order not found" })
+
+    // Calculate CO2 Stats
+    const vehicleType = rider.vehicleType || "bike"
+    let emissionFactor = 110 // default bike
+    if (vehicleType === "ev") emissionFactor = 0
+    else if (vehicleType === "scooter") emissionFactor = 80
+    
+    const baselineCarEmission = 250 // grams per km
+    const distance = orderToAccept.distance || 5 // fallback 5km
+    
+    const co2Emissions = distance * emissionFactor
+    const co2Saved = distance * (baselineCarEmission - emissionFactor)
+
+    const order = await orderModel.findByIdAndUpdate(orderId, {
+      riderId: riderId,
+      riderName: rider.name,
+      vehicleType: vehicleType,
+      co2Emissions: co2Emissions,
+      co2Saved: co2Saved,
+      status: "Out for Delivery"
+    }, { new: true })
+
+    // Broadcast status update to Customer
+    const io = req.app.get("io")
+    if (io) {
+      io.to(orderId).emit("order_status_update", { orderId, status: order.status })
+    }
+
+    res.json({ success: true, message: "Order assigned to Rider successfully", data: order })
+  } catch (error) {
+    res.json({ success: false, message: error.message })
+  }
+}
+
+// ==============================
 // RIDER: UPDATE STATUS
 // ==============================
 const updateRiderStatus = async (req, res) => {
@@ -529,5 +583,6 @@ module.exports = {
   listAssignedOrders,
   acceptOrder,
   updateRiderStatus,
-  getRiderEarnings
+  getRiderEarnings,
+  assignRiderToOrder
 }

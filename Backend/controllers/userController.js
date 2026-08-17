@@ -255,4 +255,33 @@ const getUserProfile = async (req, res) => {
   }
 }
 
-module.exports = { registerUser, loginUser, subscribePrime, verifyPrimeSubscription, getReferralAnalytics, savePushSubscription, getUserProfile }
+// TOGGLE RIDER STATUS
+const toggleRiderStatus = async (req, res) => {
+  try {
+    const user = await userModel.findById(req.userId)
+    if (!user || user.role !== "rider") {
+      return res.status(403).json({ success: false, message: "Unauthorized" })
+    }
+    user.isOnline = req.body.isOnline
+    await user.save()
+    res.json({ success: true, message: "Status updated", isOnline: user.isOnline })
+  } catch (error) {
+    res.json({ success: false, message: error.message })
+  }
+}
+
+// GET AVAILABLE RIDERS (Admin/Restaurant)
+const getAvailableRiders = async (req, res) => {
+  try {
+    const user = await userModel.findById(req.userId)
+    if (!user || (user.role !== "admin" && user.role !== "restaurant")) {
+      return res.status(403).json({ success: false, message: "Unauthorized" })
+    }
+    const riders = await userModel.find({ role: "rider", isOnline: true }).select("-password")
+    res.json({ success: true, data: riders })
+  } catch (error) {
+    res.json({ success: false, message: error.message })
+  }
+}
+
+module.exports = { registerUser, loginUser, subscribePrime, verifyPrimeSubscription, getReferralAnalytics, savePushSubscription, getUserProfile, toggleRiderStatus, getAvailableRiders }

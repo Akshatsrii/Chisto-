@@ -5,6 +5,7 @@ import "./Orders.css"
 
 const Orders = () => {
   const [orders, setOrders] = useState([])
+  const [availableRiders, setAvailableRiders] = useState([])
   const url = import.meta.env.VITE_BACKEND_URL || "https://food-ordering-6lji.onrender.com"
   const token = localStorage.getItem("admin-token")
 
@@ -43,9 +44,41 @@ const Orders = () => {
     }
   }
 
+  const fetchAvailableRiders = async () => {
+    try {
+      const response = await axios.get(`${url}/api/user/available-riders`, {
+        headers: { token }
+      })
+      if (response.data.success) {
+        setAvailableRiders(response.data.data)
+      }
+    } catch (error) {
+      console.log("Error fetching riders", error)
+    }
+  }
+
+  const handleAssignRider = async (orderId, riderId) => {
+    if (!riderId) return;
+    try {
+      const response = await axios.post(`${url}/api/order/assign-rider`, { orderId, riderId }, { headers: { token } })
+      if (response.data.success) {
+        toast.success("Order assigned to rider!")
+        fetchOrders()
+      } else {
+        toast.error(response.data.message)
+      }
+    } catch (error) {
+      console.log("Error assigning rider", error)
+      toast.error("Error assigning rider")
+    }
+  }
+
   useEffect(() => {
     if (token) {
       fetchOrders()
+      fetchAvailableRiders()
+      const interval = setInterval(fetchAvailableRiders, 10000) // refresh riders every 10s
+      return () => clearInterval(interval)
     }
   }, [token])
 
@@ -129,6 +162,27 @@ const Orders = () => {
                   <option value="Delivered">Delivered</option>
                   <option value="Cancelled">Cancelled</option>
                 </select>
+
+                {order.status === "Food Processing" && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <select 
+                      defaultValue="" 
+                      onChange={(e) => handleAssignRider(order._id, e.target.value)}
+                      style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                    >
+                      <option value="" disabled>Select Rider to Assign</option>
+                      {availableRiders.length > 0 ? availableRiders.map(rider => (
+                        <option key={rider._id} value={rider._id}>{rider.name} ({rider.vehicleType})</option>
+                      )) : <option value="" disabled>No Riders Online</option>}
+                    </select>
+                  </div>
+                )}
+
+                {order.riderName && (
+                  <span style={{ padding: '6px 12px', background: '#e3f2fd', color: '#1565c0', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>
+                    🛵 Assigned to: {order.riderName}
+                  </span>
+                )}
 
                 {order.status === "Payment Verification Pending" && (
                   <button

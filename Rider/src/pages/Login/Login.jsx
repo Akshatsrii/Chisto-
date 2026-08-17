@@ -37,21 +37,45 @@ const Login = ({ setToken }) => {
   }
 
   return (
-    <div className='login'>
-      <div className="login-container">
-        <h2>Rider Portal</h2>
-        <form onSubmit={onSubmitHandler}>
+    <div className="auth-page">
+      <form onSubmit={onSubmitHandler} className="auth-container">
+        <div style={{textAlign: 'center', marginBottom: '-10px'}}>
+           <img src="/logo.png" alt="Chisto" style={{height: '60px', width: 'auto'}} onError={(e) => e.target.style.display='none'}/>
+        </div>
+        <div className="auth-title">
+          <h2>Rider Portal</h2>
+          <p>Chisto Delivery Partner</p>
+        </div>
+
+        <div className="auth-inputs">
           <div className="input-group">
-            <p>Email Address</p>
-            <input name='email' onChange={onChangeHandler} value={data.email} type="email" placeholder='your@email.com' required />
+            <input
+              type="email"
+              name="email"
+              placeholder="Your Email"
+              onChange={onChangeHandler}
+              value={data.email}
+              required
+            />
           </div>
+
           <div className="input-group">
-            <p>Password</p>
-            <input name='password' onChange={onChangeHandler} value={data.password} type="password" placeholder='Enter your password' required />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              onChange={onChangeHandler}
+              value={data.password}
+              required
+            />
           </div>
-          <button type='submit'>Login to Dashboard</button>
-        </form>
-      </div>
+        </div>
+
+        <button type="submit" className="auth-submit-btn">
+          Login to Dashboard
+        </button>
+
+      </form>
     </div>
   )
 }

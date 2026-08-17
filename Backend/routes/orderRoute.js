@@ -130,6 +130,7 @@ orderRouter.get("/unassigned", authMiddleware, listUnassignedOrders)
 orderRouter.get("/assigned", authMiddleware, listAssignedOrders)
 orderRouter.post("/accept", authMiddleware, acceptOrder)
 orderRouter.post("/rider-status", authMiddleware, updateRiderStatus)
-orderRouter.get("/earnings", authMiddleware, getRiderEarnings)
+orderRouter.get("/rider-earnings", authMiddleware, getRiderEarnings)
+orderRouter.post("/assign-rider", authMiddleware, require("../controllers/orderController").assignRiderToOrder)
 
 module.exports = orderRouter

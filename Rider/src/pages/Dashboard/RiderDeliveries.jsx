@@ -8,12 +8,11 @@ const RiderDeliveries = () => {
   const url = import.meta.env.VITE_BACKEND_URL || "https://food-ordering-6lji.onrender.com"
   const token = localStorage.getItem("rider-token")
 
-  const [isOnline, setIsOnline] = useState(true)
-  const [activeTab, setActiveTab] = useState("Available")
+  const [isOnline, setIsOnline] = useState(false)
+  const [activeTab, setActiveTab] = useState("Active")
 
-  const [unassignedOrders, setUnassignedOrders] = useState([])
   const [assignedOrders, setAssignedOrders] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   // ================= WEBRTC STATE & REFS =================
   const [socket, setSocket] = useState(null)
@@ -164,56 +163,47 @@ const RiderDeliveries = () => {
   }
 
   const fetchData = async () => {
-    if (!isOnline) return;
+    if (!token) return;
     try {
-      setLoading(true)
-      const resUnassigned = await axios.get(`${url}/api/order/unassigned`, {
-        headers: { token }
-      })
       const resAssigned = await axios.get(`${url}/api/order/assigned`, {
         headers: { token }
       })
 
-      if (resUnassigned.data.success) {
-        setUnassignedOrders(resUnassigned.data.data)
-      }
       if (resAssigned.data.success) {
         setAssignedOrders(resAssigned.data.data)
-        
-        // Auto switch tab if active orders exist
-        if (resAssigned.data.data.filter(o => o.status !== "Delivered").length > 0) {
-           setActiveTab("Active")
-        }
       }
     } catch (err) {
       console.error(err)
-      toast.error("Failed to load orders")
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    if (token) fetchData()
-  }, [token, isOnline])
+    if (token) {
+      fetchData()
+      const interval = setInterval(fetchData, 5000) // Auto-refresh assigned orders every 5s
+      return () => clearInterval(interval)
+    }
+  }, [token])
 
-  const handleAcceptOrder = async (orderId) => {
+  const toggleOnlineStatus = async () => {
+    const newStatus = !isOnline
+    setIsOnline(newStatus)
     try {
-      const res = await axios.post(`${url}/api/order/accept`, { orderId }, {
-        headers: { token }
-      })
-      if (res.data.success) {
-        toast.success("Order accepted! 🏍️")
-        setActiveTab("Active")
-        fetchData()
+      await axios.post(`${url}/api/user/toggle-status`, { isOnline: newStatus }, { headers: { token } })
+      if (newStatus) {
+        toast.success("You are now Online. Waiting for orders...")
       } else {
-        toast.error(res.data.message)
+        toast.info("You went Offline.")
       }
     } catch (err) {
-      console.error(err)
-      toast.error("Error accepting order")
+      toast.error("Failed to update status")
+      setIsOnline(!newStatus) // revert on fail
     }
   }
+
+
 
   const handleUpdateStatus = async (orderId, newStatus) => {
     try {
@@ -319,7 +309,7 @@ const RiderDeliveries = () => {
         <h3 style={{ margin: 0, fontWeight: 700, color: '#0c2340' }}>Chisto Rider</h3>
         <div 
           className={`rider-status-toggle ${isOnline ? 'online' : 'offline'}`}
-          onClick={() => setIsOnline(!isOnline)}
+          onClick={toggleOnlineStatus}
         >
           {isOnline ? (
              <><div className="status-dot-pulse"></div><span>Online</span></>
@@ -339,44 +329,7 @@ const RiderDeliveries = () => {
         <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>
       ) : (
         <>
-          {activeTab === "Available" && (
-            <div className="rider-content-mobile">
-              <h2 className="rider-section-title">Open Pool ({unassignedOrders.length})</h2>
-              {unassignedOrders.length === 0 ? (
-                <div style={{textAlign:'center', padding:'40px', color:'#a0aec0'}}>
-                  No new delivery requests right now. Check back soon!
-                </div>
-              ) : (
-                unassignedOrders.map(order => (
-                  <div key={order._id} className="mobile-order-card">
-                    <div className="card-header-mobile">
-                      <span className="order-badge available">New Request</span>
-                      <strong style={{color:'#4a5568'}}>₹{Math.round(order.amount * 0.1) || 50} Earn</strong>
-                    </div>
-                    <div className="card-body-mobile">
-                      <div className="info-block">
-                        <div className="icon">🧑‍🍳</div>
-                        <div>
-                          <h4>Pickup From</h4>
-                          <p>{order.items[0]?.restaurantName || "Chisto Kitchen"}</p>
-                        </div>
-                      </div>
-                      <div className="info-block">
-                        <div className="icon">🏠</div>
-                        <div>
-                          <h4>Deliver To</h4>
-                          <p>{order.address.city}, {order.address.state}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <button className="mobile-action-btn accept" onClick={() => handleAcceptOrder(order._id)}>
-                      Accept Delivery
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
+
 
           {activeTab === "Active" && (
             outForDelivery ? (
@@ -415,7 +368,7 @@ const RiderDeliveries = () => {
                 <h2 className="rider-section-title">My Assignments ({activeDeliveries.length})</h2>
                 {activeDeliveries.length === 0 ? (
                   <div style={{textAlign:'center', padding:'40px', color:'#a0aec0'}}>
-                    You have no active assignments. Check Available pool.
+                    Waiting for Restaurant to assign you an order...
                   </div>
                 ) : (
                   activeDeliveries.map(order => (
@@ -462,10 +415,6 @@ const RiderDeliveries = () => {
 
       {/* BOTTOM NAV BAR */}
       <div className="rider-bottom-nav">
-        <button className={`nav-tab ${activeTab === 'Available' ? 'active' : ''}`} onClick={() => setActiveTab('Available')}>
-          <div className="nav-icon">📥</div>
-          Available
-        </button>
         <button className={`nav-tab ${activeTab === 'Active' ? 'active' : ''}`} onClick={() => setActiveTab('Active')}>
           <div className="nav-icon">🏍️</div>
           Active

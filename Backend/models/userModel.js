@@ -59,6 +59,10 @@ const userSchema = new mongoose.Schema({
   referredBy: {
     type: String
   },
+  isOnline: {
+    type: Boolean,
+    default: false
+  },
   currentStreak: { type: Number, default: 0 },
   longestStreak: { type: Number, default: 0 },
   lastOrderDate: { type: Date, default: null }
