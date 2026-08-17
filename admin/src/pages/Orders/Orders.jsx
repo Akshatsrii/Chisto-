@@ -5,7 +5,7 @@ import "./Orders.css"
 
 const Orders = () => {
   const [orders, setOrders] = useState([])
-  const url = "http://localhost:4000"
+  const url = import.meta.env.VITE_BACKEND_URL || "https://food-ordering-6lji.onrender.com"
   const token = localStorage.getItem("admin-token")
 
   const fetchOrders = async () => {

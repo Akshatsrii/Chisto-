@@ -24,7 +24,7 @@ const Navbar = ({ setCmdkOpen }) => {
 
   useEffect(() => {
     if (role === 'restaurant' && restaurantName) {
-      fetch(`http://localhost:4000/api/restaurant/availability/${restaurantName}`)
+      fetch(`${import.meta.env.VITE_BACKEND_URL || "https://food-ordering-6lji.onrender.com"}/api/restaurant/availability/${restaurantName}`)
         .then(res => res.json())
         .then(data => {
           if (data.success && data.data) {
@@ -39,7 +39,7 @@ const Navbar = ({ setCmdkOpen }) => {
     setKitchenLoad(load)
     const token = localStorage.getItem("admin-token")
     try {
-      await fetch(`http://localhost:4000/api/restaurant/availability/update`, {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL || "https://food-ordering-6lji.onrender.com"}/api/restaurant/availability/update`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "token": token },
         body: JSON.stringify({ restaurantName, kitchenLoad: load })

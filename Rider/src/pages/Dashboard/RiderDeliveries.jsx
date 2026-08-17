@@ -5,8 +5,8 @@ import { toast } from 'react-toastify'
 import './RiderDeliveries.css'
 
 const RiderDeliveries = () => {
-  const url = "http://localhost:4000"
-  const token = localStorage.getItem("admin-token")
+  const url = import.meta.env.VITE_BACKEND_URL || "https://food-ordering-6lji.onrender.com"
+  const token = localStorage.getItem("rider-token")
 
   const [isOnline, setIsOnline] = useState(true)
   const [activeTab, setActiveTab] = useState("Available")

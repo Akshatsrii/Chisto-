@@ -5,7 +5,7 @@ import { Tag, TrendingUp, Users, PlusCircle, Trash2 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
 const Coupons = () => {
-  const url = "http://localhost:4000"
+  const url = import.meta.env.VITE_BACKEND_URL || "https://food-ordering-6lji.onrender.com"
   const token = localStorage.getItem("admin-token")
   
   const [coupons, setCoupons] = useState([])
