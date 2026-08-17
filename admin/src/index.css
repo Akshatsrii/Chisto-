@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 
 @layer base {
   html, body {
@@ -21,7 +22,6 @@
   box-sizing: border-box;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 body {
   min-height: 100vh;
   background-color: #fcfcfc;
