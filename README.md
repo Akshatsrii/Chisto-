@@ -15,7 +15,7 @@
 
   **A scalable, full-stack food delivery web application with custom branding, real-time tracking, an AI chatbot, and a complete rider ecosystem**
 
-  ### 🔗 [Live Customer App](https://food-ordering-eight-iota.vercel.app/) &nbsp;|&nbsp; [Live Admin Panel](https://chisto-dcil.vercel.app/) &nbsp;|&nbsp; [Live Rider App](https://chisto-rider.vercel.app/)
+  ### 🔗 [Live Customer App](https://chisto-psi.vercel.app/) &nbsp;|&nbsp; [Live Admin Panel](https://chisto-dcil.vercel.app/) &nbsp;|&nbsp; [Live Rider App](https://chisto-dcil.vercel.app/)
 
 </div>
 
