@@ -7,14 +7,14 @@ import Footer from "./components/Footer/Footer"
 import LoginPopup from "./components/LoginPopup/LoginPopup"
 import Chatbot from "./components/Chatbot/Chatbot"
 
-import Home from "./pages/Home/Home"
-import Cart from "./pages/Cart/Cart"
-import PlaceOrder from "./pages/Placeorder/Placeorder"
-import MyOrders from "./pages/MyOrders/MyOrders"
-import Restaurant from "./pages/Restaurant/Restaurant"
-import OrderConfirm from "./pages/OrderConfirm/OrderConfirm"
-import Verify from "./pages/Verify/Verify"
-import Profile from "./pages/Profile/Profile"
+const Home = React.lazy(() => import("./pages/Home/Home"))
+const Cart = React.lazy(() => import("./pages/Cart/Cart"))
+const PlaceOrder = React.lazy(() => import("./pages/Placeorder/Placeorder"))
+const MyOrders = React.lazy(() => import("./pages/MyOrders/MyOrders"))
+const Restaurant = React.lazy(() => import("./pages/Restaurant/Restaurant"))
+const OrderConfirm = React.lazy(() => import("./pages/OrderConfirm/OrderConfirm"))
+const Verify = React.lazy(() => import("./pages/Verify/Verify"))
+const Profile = React.lazy(() => import("./pages/Profile/Profile"))
 
 import { StoreContext } from "./Context/Storecontext"
 import { ToastContainer, toast } from "react-toastify"
@@ -68,16 +68,18 @@ const App = () => {
       <div className="app">
         <Navbar setShowLogin={setShowLogin} />
 
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/order" element={<PlaceOrder />} />
-          <Route path="/myorders" element={<MyOrders />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/restaurant/:id" element={<Restaurant />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/order-confirm" element={<OrderConfirm />} />
-        </Routes>
+        <React.Suspense fallback={<div className="flex justify-center items-center h-screen">Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/order" element={<PlaceOrder />} />
+            <Route path="/myorders" element={<MyOrders />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/restaurant/:id" element={<Restaurant />} />
+            <Route path="/verify" element={<Verify />} />
+            <Route path="/order-confirm" element={<OrderConfirm />} />
+          </Routes>
+        </React.Suspense>
       </div>
 
       <Footer />
