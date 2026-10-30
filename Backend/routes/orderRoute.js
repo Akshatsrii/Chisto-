@@ -9,7 +9,8 @@ const {
   listAssignedOrders,
   acceptOrder,
   updateRiderStatus,
-  getRiderEarnings
+  getRiderEarnings,
+  assignRiderToOrder
 } = require("../controllers/ordercontroller")
 
 const authMiddleware = require("../middleware/auth")
@@ -131,6 +132,6 @@ orderRouter.get("/assigned", authMiddleware, listAssignedOrders)
 orderRouter.post("/accept", authMiddleware, acceptOrder)
 orderRouter.post("/rider-status", authMiddleware, updateRiderStatus)
 orderRouter.get("/rider-earnings", authMiddleware, getRiderEarnings)
-orderRouter.post("/assign-rider", authMiddleware, require("../controllers/orderController").assignRiderToOrder)
+orderRouter.post("/assign-rider", authMiddleware, assignRiderToOrder)
 
 module.exports = orderRouter
